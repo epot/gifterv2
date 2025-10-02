@@ -1,9 +1,36 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios"
 import { useNavigate } from "react-router-dom";
 import Card from "./Card.tsx";
+import Swal from "sweetalert2"
+import Button from '@mui/material/Button';
+import Link from '@mui/material/Link';
+import FormControl from '@mui/material/FormControl';
+import TextField from '@mui/material/TextField';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+
+
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+
+  async function handleLogin(e){
+        e.preventDefault()
+        try {
+            const requestBody = {email, password}
+            const response = await axios.post('/auth/login', requestBody)
+            localStorage.setItem('access_token', response.data.access_token)
+            navigate('/')
+        } catch (error) {
+            console.log(error);
+            Swal.fire({
+                icon: "error",
+                title: "Failed to login",
+                text: error.response.data
+            });
+        }
+    }
 
   useEffect(() => {
     const checkUserStatus = async () => {
@@ -24,10 +51,20 @@ const Login: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-gray-100 to-gray-300">
       <Card>
-        <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">Welcome Back</h1>
+        <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">Welcome to this awesome application</h1>
         <p className="text-gray-600 text-center mb-6">
-          Log in to continue using our service. It's quick and easy!
+          Log in please. It's quick and easy!
         </p>
+        <div className="flex justify-center mb-4">
+          <div className="container" style={{marginTop:"10vh"}}>
+            <FormControl variant="standard">
+              <TextField onChange={e => {setEmail(e.target.value)}} id="email" label="Email" type="email" variant="standard" required />
+              <TextField onChange={e => {setPassword(e.target.value)}} id="password" label="Password" type="password" variant="standard" required />
+              <Button variant="contained" onClick = {handleLogin}>Login</Button>
+              <p style={{marginTop:"2vh"}}>Don't have an account? <Link href={'/signup'}>Create an account</Link></p>
+            </FormControl>
+          </div>
+        </div>
         <div className="flex justify-center mb-4">
           <a
             href="/auth?provider=google"

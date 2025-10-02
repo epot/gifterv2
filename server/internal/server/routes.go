@@ -28,6 +28,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Get("/health", handlers.HealthHandler(s.db))
 
 	// Authentication routes
+	r.Post("/auth/login", handlers.LoginHandler(s.db))
+	r.Post("/auth/signup", handlers.SignupHandler(s.db))
+
 	r.Get("/auth", gothic.BeginAuthHandler)
 	r.Get("/auth/callback", handlers.GoogleCallbackHandler(s.db))
 	r.Get("/auth/logout", handlers.LogoutHandler)

@@ -24,6 +24,8 @@ type Service interface {
 	Close() error
 
 	FindOrCreateUser(ctx context.Context, user *User) (string, error)
+	Signup(ctx context.Context, userName string, userEmail string, password string) (string, error)
+	Login(ctx context.Context, userEmail string, password string) (string, error)
 	GetUserByID(ctx context.Context, userID string) (*User, error)
 }
 
