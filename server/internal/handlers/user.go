@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/epot/gifterv2/internal/database"
 	"github.com/markbates/goth/gothic"
-	"github.com/martishin/react-golang-goth-auth/internal/database"
 )
 
 func GetUserHandler(db database.Service) http.HandlerFunc {

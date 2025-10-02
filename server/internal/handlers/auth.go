@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/epot/gifterv2/internal/database"
 	"github.com/markbates/goth/gothic"
-	"github.com/martishin/react-golang-goth-auth/internal/database"
 )
 
 func GoogleCallbackHandler(db database.Service) http.HandlerFunc {
@@ -49,7 +49,6 @@ func GoogleCallbackHandler(db database.Service) http.HandlerFunc {
 		http.Redirect(w, r, redirectSecure, http.StatusFound)
 	}
 }
-
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	// Clear session

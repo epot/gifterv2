@@ -6,8 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/epot/gifterv2/internal/handlers"
 	"github.com/go-chi/chi/v5"
-	"github.com/martishin/react-golang-goth-auth/internal/handlers"
 )
 
 func TestHelloWorldHandler(t *testing.T) {

@@ -8,11 +8,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/epot/gifterv2/internal/database"
 	"github.com/gorilla/sessions"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/google"
-	"github.com/martishin/react-golang-goth-auth/internal/database"
 )
 
 type Server struct {

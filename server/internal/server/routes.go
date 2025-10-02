@@ -3,12 +3,12 @@ package server
 import (
 	"net/http"
 
+	"github.com/epot/gifterv2/internal/handlers"
+	"github.com/epot/gifterv2/internal/middleware"
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/markbates/goth/gothic"
-	"github.com/martishin/react-golang-goth-auth/internal/handlers"
-	"github.com/martishin/react-golang-goth-auth/internal/middleware"
 )
 
 func (s *Server) RegisterRoutes() http.Handler {

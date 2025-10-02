@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/martishin/react-golang-goth-auth/internal/database"
+	"github.com/epot/gifterv2/internal/database"
 )
 
 func HelloWorldHandler(w http.ResponseWriter, r *http.Request) {

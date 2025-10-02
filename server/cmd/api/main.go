@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/martishin/react-golang-goth-auth/internal/server"
+	"github.com/epot/gifterv2/internal/server"
 )
 
 func gracefulShutdown(apiServer *http.Server, done chan bool) {
