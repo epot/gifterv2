@@ -31,6 +31,7 @@ type Service interface {
 
 	// event stuff
 	ListEvents(ctx context.Context, userID string) ([]Event, error)
+	CreateEvent(ctx context.Context, userID string, eventName string, eventDate time.Time) error
 }
 
 type service struct {

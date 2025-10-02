@@ -30,6 +30,6 @@ func GetUserHandler(db database.Service) http.HandlerFunc {
 		}
 
 		// Respond with user data
-		json.NewEncoder(w).Encode(user)
+		_ = json.NewEncoder(w).Encode(user)
 	}
 }

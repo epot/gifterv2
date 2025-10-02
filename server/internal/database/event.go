@@ -12,6 +12,12 @@ const (
 	ChristmasEventType = iota
 )
 
+type ParticipantRole int
+
+const (
+	OwnerParticipantRole = iota
+)
+
 type Event struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -24,16 +30,16 @@ func (s *service) ListEvents(ctx context.Context, userID string) ([]Event, error
 	rows, err := s.db.QueryContext(
 		ctx,
 		`
-SELECT 
-    events.id, 
-    events.name, 
-    events.date, 
-    events.type, 
-    users.name, 
+	SELECT 
+		events.id, 
+		events.name, 
+		events.date, 
+		events.type, 
+		users.name
     FROM events 
     JOIN users ON events.creatorid = users.id
     JOIN participants ON events.id = participants.eventid
-    WHERE partitions.userid = $1
+    WHERE participants.userid = $1
 `,
 		userID)
 	if err != nil {
@@ -54,4 +60,39 @@ SELECT
 	}
 
 	return events, nil
+}
+
+func (s *service) CreateEvent(ctx context.Context, userID string, eventName string, eventDate time.Time) (finalErr error) {
+	txn, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("error starting transaction: %w", err)
+	}
+
+	defer func() {
+		if finalErr != nil {
+			errRollback := txn.Rollback()
+			if errRollback != nil {
+				finalErr = fmt.Errorf("error rolling back transaction: %w (after %w)", errRollback, err)
+			}
+			finalErr = fmt.Errorf("error running transaction: %w", err)
+		}
+	}()
+
+	var eventID string
+	err = s.db.QueryRowContext(ctx, "INSERT INTO events (creatorid, name, date, type) VALUES ($1, $2, $3, $4) RETURNING id", userID, eventName, eventDate, ChristmasEventType).Scan(&eventID)
+	if err != nil {
+		return fmt.Errorf("failed to create event: %w", err)
+	}
+
+	var participantID string
+	err = s.db.QueryRowContext(ctx, "INSERT INTO participants (userid, eventid, participant_role) VALUES ($1, $2, $3) RETURNING id", userID, eventID, OwnerParticipantRole).Scan(&participantID)
+	if err != nil {
+		return fmt.Errorf("failed to create participant: %w", err)
+	}
+
+	if err := txn.Commit(); err != nil {
+		return fmt.Errorf("error committing transaction: %w", err)
+	}
+
+	return nil
 }

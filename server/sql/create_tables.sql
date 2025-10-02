@@ -21,7 +21,7 @@ CREATE TABLE participants(
     eventid serial not null,
     participant_role int not null,
     foreign key (userid) references users(id) on delete cascade,
-    foreign key (eventid) references event(id) on delete cascade
+    foreign key (eventid) references events(id) on delete cascade
 );
 
 CREATE TABLE gifts (

@@ -6,10 +6,10 @@ import Swal from "sweetalert2"
 import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import Container from '@mui/material/Container';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -49,7 +49,7 @@ const Login: React.FC = () => {
   }, [navigate]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-gray-100 to-gray-300">
+    <Container>
       <Card>
         <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">Sign up</h1>
         <div className="flex justify-center mb-4">
@@ -64,7 +64,7 @@ const Login: React.FC = () => {
           </div>
         </div>
       </Card>
-    </div>
+    </Container>
   );
 };
 

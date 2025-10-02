@@ -36,7 +36,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	// API routes (protected)
 	r.With(middleware.AuthMiddleware).Get("/api/user", handlers.GetUserHandler(s.db))
-	r.With(middleware.AuthMiddleware).Get("/api/events/lis", handlers.GetUserHandler(s.db))
+	r.With(middleware.AuthMiddleware).Get("/api/events", handlers.GetEvents(s.db))
+	r.With(middleware.AuthMiddleware).Post("/api/events/create", handlers.CreateEvent(s.db))
 
 	return r
 }
