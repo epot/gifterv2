@@ -30,13 +30,13 @@ func (s *Server) RegisterRoutes() http.Handler {
 	// Authentication routes
 	r.Post("/auth/login", handlers.LoginHandler(s.db))
 	r.Post("/auth/signup", handlers.SignupHandler(s.db))
-
 	r.Get("/auth", gothic.BeginAuthHandler)
 	r.Get("/auth/callback", handlers.GoogleCallbackHandler(s.db))
 	r.Get("/auth/logout", handlers.LogoutHandler)
 
 	// API routes (protected)
 	r.With(middleware.AuthMiddleware).Get("/api/user", handlers.GetUserHandler(s.db))
+	r.With(middleware.AuthMiddleware).Get("/api/events/lis", handlers.GetUserHandler(s.db))
 
 	return r
 }

@@ -42,7 +42,7 @@ func (s *service) FindOrCreateUser(ctx context.Context, user *User) (string, err
 	err := s.db.QueryRowContext(ctx, "SELECT id FROM users WHERE email = $1", user.Email).Scan(&userID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			err = s.db.QueryRowContext(ctx, "INSERT INTO users (name, email, picture) VALUES ($1, $2, $3) RETURNING id", user.Name, user.Email, user.Picture).Scan(&userID)
+			err = s.db.QueryRowContext(ctx, "INSERT INTO users (name, email, picture, password_hash) VALUES ($1, $2, $3, $4) RETURNING id", user.Name, user.Email, user.Picture, "").Scan(&userID)
 		}
 	}
 	if err != nil {

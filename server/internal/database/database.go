@@ -23,10 +23,14 @@ type Service interface {
 	// It returns an error if the connection cannot be closed.
 	Close() error
 
+	// user stuff
 	FindOrCreateUser(ctx context.Context, user *User) (string, error)
 	Signup(ctx context.Context, userName string, userEmail string, password string) (string, error)
 	Login(ctx context.Context, userEmail string, password string) (string, error)
 	GetUserByID(ctx context.Context, userID string) (*User, error)
+
+	// event stuff
+	ListEvents(ctx context.Context, userID string) ([]Event, error)
 }
 
 type service struct {
