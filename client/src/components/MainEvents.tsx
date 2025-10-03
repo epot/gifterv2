@@ -3,6 +3,8 @@ import React from "react";
 import Container from '@mui/material/Container';
 import AppBar from './AppBar';
 import Events from './Events';
+import Gifts from './Gifts';
+import NewGift from './NewGift';
 import NewEvent from "./NewEvent";
 
 const Secure: React.FC = () => {
@@ -17,6 +19,8 @@ const Secure: React.FC = () => {
         <Routes>
             <Route path="/" element={<Events />} />
             <Route path="/new" element={<NewEvent />} />
+            <Route path="/:eventID/gifts" element={<Gifts />} />
+            <Route path="/:eventID/gifts/create" element={<NewGift />} />
         </Routes>
       </Container>
     </Container>

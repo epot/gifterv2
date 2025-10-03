@@ -22,7 +22,6 @@ func GetEvents(db database.Service) http.HandlerFunc {
 			return
 		}
 
-		// Fetch user details from the database
 		ctx := r.Context()
 		events, err := db.ListEvents(ctx, userID)
 		if err != nil {

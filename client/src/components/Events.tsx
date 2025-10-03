@@ -12,6 +12,7 @@ import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
+import Link from '@mui/material/Link';
 
 interface Event {
   id: string;
@@ -80,7 +81,7 @@ const Secure: React.FC = () => {
                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                           >
                             <TableCell component="th" scope="row">
-                              {event.name}
+                              <Link href={`/events/${event.id}/gifts`} underline="none">{event.name}</Link>
                             </TableCell>
                             <TableCell align="right">{event.creator_name}</TableCell>
                             <TableCell align="right">{new Date(event.date).toDateString()}</TableCell>

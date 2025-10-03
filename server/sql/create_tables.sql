@@ -28,8 +28,8 @@ CREATE TABLE gifts (
   id serial PRIMARY KEY,
   creator_id serial not null,
   event_id serial not null,
-  creationDate timestamp not null,
+  created_at timestamp not null,
   content text not null,
   foreign key (creator_id) references users(id) on delete cascade,
-  foreign key (event_id) references event(id) on delete cascade
+  foreign key (event_id) references events(id) on delete cascade
 );
