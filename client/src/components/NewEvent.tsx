@@ -45,7 +45,7 @@ const Secure: React.FC = () => {
         try {
             const requestBody = {name, date}
             const response = await axios.post('/api/events/create', requestBody)
-            navigate('/secure')
+            navigate('/events')
         } catch (error) {
             console.log(error);
             Swal.fire({
@@ -64,29 +64,23 @@ const Secure: React.FC = () => {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Container>
         <Card>
-          <CardContent>
-            <Typography variant="h5" component="div">
-              Create a new event
-            </Typography>
-          </CardContent>
           <CardActions>
-            <Box sx={{ flexGrow: 1 }}></Box>
-              <Grid container spacing={3}>
-                <Grid size="grow">
-                </Grid>
-                <Grid size={6}>
-                  <FormControl variant="standard">
-                    <TextField onChange={e => {setName(e.target.value)}} id="name" label="Name" variant="standard" required />
-                    <DateField
-                      label="Date"
-                      value={date}
-                      onChange={d => setDate(d)}
-                    />
-                    <Button variant="contained" onClick = {handleCreate}>Create</Button>
-                  </FormControl>
-                </Grid>
+            <Grid container spacing={1} >
+              <Grid size={12}>
+                <TextField onChange={e => {setName(e.target.value)}} id="name" label="Name" variant="standard" required />
               </Grid>
-            </CardActions>
+              <Grid size={12}>
+                <DateField
+                    label="Date"
+                    value={date}
+                    onChange={d => setDate(d)}
+                  />
+              </Grid>
+              <Grid size={12}>
+                <Button variant="contained" onClick = {handleCreate}>Create</Button>
+              </Grid>
+            </Grid>
+          </CardActions>
         </Card>
       </Container>
     </LocalizationProvider>

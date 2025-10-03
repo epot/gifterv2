@@ -102,7 +102,7 @@ export default function AppAppBar() {
             <StyledToolbar variant="dense" disableGutters>
             <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', px: 0 }}>
                 <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-                <Button variant="text" color="info" size="small">
+                <Button variant="text" color="info" size="small" href="/events">
                     Events
                 </Button>
                 </Box>

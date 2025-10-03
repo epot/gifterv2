@@ -11,6 +11,7 @@ import Card from '@mui/material/Card';
 import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
 
 interface Event {
   id: string;
@@ -58,32 +59,38 @@ const Secure: React.FC = () => {
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           <Container>
             <Card>
-              <Button variant="contained" href={'/events/new'}>Create new event</Button>
-              <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Name</TableCell>
-                      <TableCell align="right">Creator</TableCell>
-                      <TableCell align="right">Date</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {events.events.map((event) => (
-                      <TableRow
-                        key={event.id}
-                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                      >
-                        <TableCell component="th" scope="row">
-                          {event.name}
-                        </TableCell>
-                        <TableCell align="right">{event.creator_name}</TableCell>
-                        <TableCell align="right">{new Date(event.date).toDateString()}</TableCell>
-                      </TableRow>
-                ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+              <Grid container spacing={2}>
+                <Grid size={12}>
+                  <Button variant="contained" href={'/events/new'}>Create new event</Button>
+                </Grid>
+                <Grid size={12}>
+                  <TableContainer component={Paper}>
+                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Name</TableCell>
+                          <TableCell align="right">Creator</TableCell>
+                          <TableCell align="right">Date</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {events.events.map((event) => (
+                          <TableRow
+                            key={event.id}
+                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                          >
+                            <TableCell component="th" scope="row">
+                              {event.name}
+                            </TableCell>
+                            <TableCell align="right">{event.creator_name}</TableCell>
+                            <TableCell align="right">{new Date(event.date).toDateString()}</TableCell>
+                          </TableRow>
+                    ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Grid>
+              </Grid>
             </Card>
           </Container>
         </Box>

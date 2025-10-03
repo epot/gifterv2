@@ -43,7 +43,7 @@ func GoogleCallbackHandler(db database.Service) http.HandlerFunc {
 		// Redirect to the secure area
 		redirectSecure := os.Getenv("REDIRECT_SECURE")
 		if redirectSecure == "" {
-			redirectSecure = "http://localhost:5173/secure"
+			redirectSecure = "http://localhost:5173/events"
 		}
 
 		http.Redirect(w, r, redirectSecure, http.StatusFound)

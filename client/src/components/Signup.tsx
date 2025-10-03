@@ -39,7 +39,7 @@ const Login: React.FC = () => {
           credentials: "include",
         });
         if (res.ok) {
-          navigate("/secure"); // Redirect to secure page if logged in
+          navigate("/events"); // Redirect to secure page if logged in
         }
       } catch (err) {
         console.error("User not logged in:", err);
