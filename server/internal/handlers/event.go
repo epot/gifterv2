@@ -106,3 +106,54 @@ func GetEventParticipants(db database.Service) http.HandlerFunc {
 		_ = json.NewEncoder(w).Encode(Participants{Users: users})
 	}
 }
+
+type newParticipantRequest struct {
+	ParticipantEmail string `json:"participant_email"`
+}
+
+func AddEventParticipant(db database.Service) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Retrieve user ID from session
+		userID, err := gothic.GetFromSession("user_id", r)
+		if err != nil || userID == "" {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		var (
+			decoder = json.NewDecoder(r.Body)
+			eventID = r.PathValue("event_id")
+			ctx     = r.Context()
+		)
+
+		var req newParticipantRequest
+		err = decoder.Decode(&req)
+		if err != nil {
+			http.Error(w, "Invalid request payload", http.StatusBadRequest)
+			log.Println(err)
+			return
+		}
+
+		hasAccess, err := checkIfUserHasAccessToEvents(ctx, db, userID, eventID)
+		if err != nil {
+			http.Error(w, "Error checking event access", http.StatusInternalServerError)
+			return
+		}
+		if !hasAccess {
+			http.Error(w, "Event not found", http.StatusBadRequest)
+			return
+		}
+		err = db.AddEventParticipant(ctx, eventID, req.ParticipantEmail)
+		if err != nil {
+			if database.IsUnknownParticipantError(err) {
+				http.Error(w, "Email does not exist", http.StatusBadRequest)
+				return
+			}
+			http.Error(w, "Error adding new participant", http.StatusInternalServerError)
+			return
+		}
+
+		// Respond with user data
+		_ = json.NewEncoder(w).Encode(nil)
+	}
+}

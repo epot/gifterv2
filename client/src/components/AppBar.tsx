@@ -13,8 +13,6 @@ import Avatar from '@mui/material/Avatar';
 import Menu from '@mui/material/Menu';
 import Typography from '@mui/material/Typography';
 
-const settings = ['Logout'];
-
 interface UserDetails {
   name: string;
   email: string;

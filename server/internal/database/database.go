@@ -32,7 +32,10 @@ type Service interface {
 	// event stuff
 	ListEvents(ctx context.Context, userID string) ([]Event, error)
 	CreateEvent(ctx context.Context, userID string, eventName string, eventDate time.Time) error
+
+	// participants stuff
 	GetEventParticipants(ctx context.Context, eventID string) ([]User, error)
+	AddEventParticipant(ctx context.Context, eventID string, userEmail string) error
 
 	// gift stuff
 	CreateGift(ctx context.Context, userID string, name string, eventID string, toUserID string, urls []string) error
