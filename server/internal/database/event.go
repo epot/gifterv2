@@ -96,3 +96,37 @@ func (s *service) CreateEvent(ctx context.Context, userID string, eventName stri
 
 	return nil
 }
+
+func (s *service) GetEventParticipants(ctx context.Context, eventID string) ([]User, error) {
+	rows, err := s.db.QueryContext(
+		ctx,
+		`
+	SELECT 
+		users.id, 
+		users.name, 
+		users.email, 
+		users.picture
+    FROM users 
+    JOIN participants ON users.id = participants.user_id
+    WHERE participants.event_id = $1
+`,
+		eventID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list participants: %w", err)
+	}
+	defer rows.Close()
+
+	var users []User
+
+	for rows.Next() {
+		var user User
+		err = rows.Scan(&user.ID, &user.Name, &user.Email, &user.Picture)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning user: %w", err)
+		}
+
+		users = append(users, user)
+	}
+
+	return users, nil
+}

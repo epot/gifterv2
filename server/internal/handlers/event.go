@@ -68,3 +68,41 @@ func CreateEvent(db database.Service) http.HandlerFunc {
 		_ = json.NewEncoder(w).Encode(nil)
 	}
 }
+
+type Participants struct {
+	Users []database.User `json:"users"`
+}
+
+func GetEventParticipants(db database.Service) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Retrieve user ID from session
+		userID, err := gothic.GetFromSession("user_id", r)
+		if err != nil || userID == "" {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		var (
+			eventID = r.PathValue("event_id")
+			ctx     = r.Context()
+		)
+
+		hasAccess, err := checkIfUserHasAccessToEvents(ctx, db, userID, eventID)
+		if err != nil {
+			http.Error(w, "Error checking event access", http.StatusInternalServerError)
+			return
+		}
+		if !hasAccess {
+			http.Error(w, "Event not found", http.StatusBadRequest)
+			return
+		}
+		users, err := db.GetEventParticipants(ctx, eventID)
+		if err != nil {
+			http.Error(w, "Error fetching participants", http.StatusInternalServerError)
+			return
+		}
+
+		// Respond with user data
+		_ = json.NewEncoder(w).Encode(Participants{Users: users})
+	}
+}
