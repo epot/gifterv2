@@ -12,30 +12,33 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
+import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
+
+const validationSchema = Yup.object().shape({
+    email: Yup.string()
+        .email('Invalid email')
+        .required('Email is required'),
+    password: Yup.string().required('Password is required'),
+});
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
 
-
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-
-  async function handleLogin(e: any){
-        e.preventDefault()
-        try {
-            const requestBody = {email, password}
-            const response = await axios.post('/auth/login', requestBody)
-            localStorage.setItem('access_token', response.data.access_token)
-            navigate('/')
-        } catch (error: any) {
-            console.log(error);
-            Swal.fire({
-                icon: "error",
-                title: "Failed to login",
-                text: error.response.data
-            });
-        }
+  async function handleLogin(values: any){
+    try {
+        const response = await axios.post('/auth/login', values)
+        localStorage.setItem('access_token', response.data.access_token)
+        navigate('/')
+    } catch (error: any) {
+        console.log(error);
+        Swal.fire({
+            icon: "error",
+            title: "Failed to login",
+            text: error.response.data
+        });
     }
+  }
 
   useEffect(() => {
     const checkUserStatus = async () => {
@@ -96,13 +99,50 @@ const Login: React.FC = () => {
                 </div>
               </Grid>
               <Grid size={12}>
-                <TextField onChange={e => {setEmail(e.target.value)}} id="email" label="Email" type="email" variant="standard" required />
-              </Grid>
-              <Grid size={12}>
-                <TextField onChange={e => {setPassword(e.target.value)}} id="password" label="Password" type="password" variant="standard" required />
-              </Grid>
-              <Grid size={12}>
-                <Button variant="contained" onClick = {handleLogin}>Login</Button>
+                <Formik
+                    initialValues={{email: '', password: ''}}
+                    validationSchema={validationSchema}
+                    onSubmit={handleLogin}
+                >
+                    {({
+                          handleSubmit,
+                          touched,
+                          errors,
+                          handleChange,
+                          handleBlur
+                      }) => (
+                        <Form onSubmit={handleSubmit}>
+                            <TextField
+                                label="Email"
+                                variant="outlined"
+                                name="email"
+                                fullWidth
+                                required
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                error={Boolean(touched.email && errors.email)}
+                                helperText={touched.email && errors.email}
+                                sx={{mb: 2}}
+                            />
+                            <TextField
+                                label="Password"
+                                variant="outlined"
+                                name="password"
+                                type="password"
+                                fullWidth
+                                required
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                error={Boolean(touched.password && errors.password)}
+                                helperText={touched.password && errors.password}
+                                sx={{mb: 2}}
+                            />
+                            <Button type="submit" variant="contained" color="primary" fullWidth>
+                                Login
+                            </Button>
+                        </Form>
+                    )}
+                  </Formik>
               </Grid>
               <Grid size={12}>
                 <p style={{marginTop:"2vh"}}>Don't have an account? <Link href={'/signup'}>Create an account</Link></p>

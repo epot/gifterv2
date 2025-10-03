@@ -12,11 +12,16 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import CardActions from '@mui/material/CardActions';
 import Grid from '@mui/material/Grid';
+import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
+
+const validationSchema = Yup.object().shape({
+    name: Yup.string().required('Name is required'),
+   // date: Yup.date().required('Date is required'),
+});
 
 const Secure: React.FC = () => {
   const navigate = useNavigate();
-  
-  const [name, setName] = useState("")
   const [date, setDate] = React.useState<Dayjs | null>(dayjs('2025-12-25'));
 
   const fetchUserDetails = async () => {
@@ -36,21 +41,20 @@ const Secure: React.FC = () => {
     }
   };
 
-  async function handleCreate(e: any){
-        e.preventDefault()
-        try {
-            const requestBody = {name, date}
-            await axios.post('/api/events/create', requestBody)
-            navigate('/events')
-        } catch (error: any) {
-            console.log(error);
-            Swal.fire({
-                icon: "error",
-                title: "Failed to create event",
-                text: error.response.data
-            });
-        }
+  async function handleCreate(values: any){
+    try {
+        values.date = date
+        await axios.post('/api/events/create', values)
+        navigate('/events')
+    } catch (error: any) {
+        console.log(error);
+        Swal.fire({
+            icon: "error",
+            title: "Failed to create event",
+            text: error.response.data
+        });
     }
+  }
 
   useEffect(() => {
     fetchUserDetails();
@@ -63,17 +67,44 @@ const Secure: React.FC = () => {
           <CardActions>
             <Grid container spacing={1} >
               <Grid size={12}>
-                <TextField onChange={e => {setName(e.target.value)}} id="name" label="Name" variant="standard" required />
-              </Grid>
-              <Grid size={12}>
-                <DateField
-                    label="Date"
-                    value={date}
-                    onChange={d => setDate(d)}
-                  />
-              </Grid>
-              <Grid size={12}>
-                <Button variant="contained" onClick = {handleCreate}>Create</Button>
+                <Formik
+                    initialValues={{name: '', date:''}}
+                    validationSchema={validationSchema}
+                    onSubmit={handleCreate}
+                >
+                    {({
+                          handleSubmit,
+                          touched,
+                          errors,
+                          handleChange,
+                          handleBlur
+                      }) => (
+                        <Form onSubmit={handleSubmit}>
+                            <TextField
+                                label="Name"
+                                variant="outlined"
+                                name="name"
+                                fullWidth
+                                required
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                error={Boolean(touched.name && errors.name)}
+                                helperText={touched.name && errors.name}
+                                sx={{mb: 2}}
+                            />
+                            <DateField
+                              label="Date"
+                              fullWidth
+                              value={date}
+                              onChange={d => setDate(d)}
+                              sx={{mb: 2}}
+                            />
+                            <Button type="submit" variant="contained" color="primary" fullWidth>
+                                Create
+                            </Button>
+                        </Form>
+                    )}
+                  </Formik>
               </Grid>
             </Grid>
           </CardActions>

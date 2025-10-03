@@ -1,25 +1,31 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios"
 import { useNavigate } from "react-router-dom";
-import Card from "./Card.tsx";
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardActions from '@mui/material/CardActions';
+import Typography from '@mui/material/Typography';
 import Swal from "sweetalert2"
-import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
+import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
+
+const validationSchema = Yup.object().shape({
+    email: Yup.string()
+        .email('Invalid email')
+        .required('Email is required'),
+    name: Yup.string().required('Name is required'),
+    password: Yup.string().required('Password is required'),
+});
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [name, setName] = useState("")
-
-  async function handleSignup(e: any){
-        e.preventDefault()
+  async function handleSignup(values: any){
         try {
-            const requestBody = {email, password, name}
-            const response = await axios.post('/auth/signup', requestBody)
+            const response = await axios.post('/auth/signup', values)
             localStorage.setItem('access_token', response.data.access_token)
             navigate('/')
         } catch (error: any) {
@@ -50,19 +56,70 @@ const Login: React.FC = () => {
 
   return (
     <Container>
-      <Card>
-        <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">Sign up</h1>
-        <div className="flex justify-center mb-4">
-          <div className="container" style={{marginTop:"10vh"}}>
-
-            <FormControl variant="standard">
-              <TextField onChange={e => {setName(e.target.value)}} id="name" label="Name" variant="standard" required />
-              <TextField onChange={e => {setEmail(e.target.value)}} id="email" label="Email" type="email" variant="standard" required />
-              <TextField onChange={e => {setPassword(e.target.value)}} id="password" label="Password" type="password" variant="standard" required />
-              <Button variant="contained" onClick = {handleSignup}>Signup</Button>
-            </FormControl>
-          </div>
-        </div>
+      <Card sx={{ minWidth: 275 }}>
+        <CardContent>
+          <Typography variant="h5" component="div">
+            Sign up
+          </Typography>
+        </CardContent>
+        <CardActions>
+          <Formik
+              initialValues={{email: '', name: '', password: ''}}
+              validationSchema={validationSchema}
+              onSubmit={handleSignup}
+          >
+              {({
+                    handleSubmit,
+                    touched,
+                    errors,
+                    handleChange,
+                    handleBlur
+                }) => (
+                  <Form onSubmit={handleSubmit}>
+                      <TextField
+                          label="Name"
+                          variant="outlined"
+                          name="name"
+                          fullWidth
+                          required
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          error={Boolean(touched.name && errors.name)}
+                          helperText={touched.name && errors.name}
+                          sx={{mb: 2}}
+                      />
+                      <TextField
+                          label="Email"
+                          variant="outlined"
+                          name="email"
+                          fullWidth
+                          required
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          error={Boolean(touched.email && errors.email)}
+                          helperText={touched.email && errors.email}
+                          sx={{mb: 2}}
+                      />
+                      <TextField
+                          label="Password"
+                          variant="outlined"
+                          name="password"
+                          type="password"
+                          fullWidth
+                          required
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          error={Boolean(touched.password && errors.password)}
+                          helperText={touched.password && errors.password}
+                          sx={{mb: 2}}
+                      />
+                      <Button type="submit" variant="contained" color="primary" fullWidth>
+                          Sign up
+                      </Button>
+                  </Form>
+              )}
+            </Formik>
+          </CardActions>
       </Card>
     </Container>
   );
