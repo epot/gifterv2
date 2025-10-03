@@ -37,9 +37,9 @@ func (s *service) ListEvents(ctx context.Context, userID string) ([]Event, error
 		events.type, 
 		users.name
     FROM events 
-    JOIN users ON events.creatorid = users.id
-    JOIN participants ON events.id = participants.eventid
-    WHERE participants.userid = $1
+    JOIN users ON events.creator_id = users.id
+    JOIN participants ON events.id = participants.event_id
+    WHERE participants.user_id = $1
 `,
 		userID)
 	if err != nil {
@@ -79,13 +79,13 @@ func (s *service) CreateEvent(ctx context.Context, userID string, eventName stri
 	}()
 
 	var eventID string
-	err = s.db.QueryRowContext(ctx, "INSERT INTO events (creatorid, name, date, type) VALUES ($1, $2, $3, $4) RETURNING id", userID, eventName, eventDate, ChristmasEventType).Scan(&eventID)
+	err = s.db.QueryRowContext(ctx, "INSERT INTO events (creator_id, name, date, type) VALUES ($1, $2, $3, $4) RETURNING id", userID, eventName, eventDate, ChristmasEventType).Scan(&eventID)
 	if err != nil {
 		return fmt.Errorf("failed to create event: %w", err)
 	}
 
 	var participantID string
-	err = s.db.QueryRowContext(ctx, "INSERT INTO participants (userid, eventid, participant_role) VALUES ($1, $2, $3) RETURNING id", userID, eventID, OwnerParticipantRole).Scan(&participantID)
+	err = s.db.QueryRowContext(ctx, "INSERT INTO participants (user_id, event_id, participant_role) VALUES ($1, $2, $3) RETURNING id", userID, eventID, OwnerParticipantRole).Scan(&participantID)
 	if err != nil {
 		return fmt.Errorf("failed to create participant: %w", err)
 	}

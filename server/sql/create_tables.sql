@@ -8,28 +8,28 @@ CREATE TABLE users (
 
 CREATE TABLE events (
    id serial PRIMARY KEY,
-   creatorid serial not null,
+   creator_id serial not null,
    name text not null,
    date timestamp not null,
    type int not null,
-   foreign key (creatorid) references users(id) on delete cascade
+   foreign key (creator_id) references users(id) on delete cascade
 );
 
 CREATE TABLE participants(
     id serial PRIMARY KEY,
-    userid serial not null,
-    eventid serial not null,
+    user_id serial not null,
+    event_id serial not null,
     participant_role int not null,
-    foreign key (userid) references users(id) on delete cascade,
-    foreign key (eventid) references events(id) on delete cascade
+    foreign key (user_id) references users(id) on delete cascade,
+    foreign key (event_id) references events(id) on delete cascade
 );
 
 CREATE TABLE gifts (
   id serial PRIMARY KEY,
-  creatorid serial not null,
-  eventid serial not null,
+  creator_id serial not null,
+  event_id serial not null,
   creationDate timestamp not null,
   content text not null,
-  foreign key (creatorid) references users(id) on delete cascade,
-  foreign key (eventid) references event(id) on delete cascade
+  foreign key (creator_id) references users(id) on delete cascade,
+  foreign key (event_id) references event(id) on delete cascade
 );
