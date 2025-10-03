@@ -1,7 +1,6 @@
 dispatch:
-  # Send all trafic on /api to api service.
-  - url: '*/api/*'
+  # Send all trafic on /api and /auth to api service.
+  - url: '*/api*'
     service: api
-  # Send all trafic on /auth to api service.
-  - url: '*/auth/*'
+  - url: '*/auth*'
     service: api

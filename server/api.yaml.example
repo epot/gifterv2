@@ -4,9 +4,10 @@ service: api
 env_variables:
   GOOGLE_CLIENT_ID: xxxx
   GOOGLE_CLIENT_SECRET: xxx
-  GOOGLE_CALLBACK_URL: https://gifter-1033.appspot.com/auth/callback?provider=google
-  REDIRECT_SECURE: https://gifter-1033.appspot.com/events
+  GOOGLE_CALLBACK_URL: https://coincoin-1033.appspot.com/auth/callback?provider=google
+  REDIRECT_SECURE: https://coincoin-1033.appspot.com/events
   SESSION_SECRET: xxxx
+  SESSION_COOKIE_DOMAIN: coincoin-1033.appspot.com
   DB_HOST: host
   DB_PORT: 5432
   DB_DATABASE: postgres

@@ -56,15 +56,24 @@ var (
 	dbInstance *service
 )
 
-func New() Service {
+func New(isProduction bool) Service {
 	// Reuse Connection
 	if dbInstance != nil {
 		return dbInstance
 	}
+
 	connStr := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable timezone=UTC connect_timeout=5",
+		"host=%s port=%s user=%s password=%s dbname=%s timezone=UTC connect_timeout=5",
 		host, port, username, password, database,
 	)
+
+	if isProduction {
+		log.Println("Production DB Connection")
+		connStr = fmt.Sprintf("%s sslmode=require channel_binding=require", connStr)
+	} else {
+		log.Println("Dev DB Connection")
+		connStr = fmt.Sprintf("%s sslmode=disable", connStr)
+	}
 
 	db, err := sql.Open("pgx", connStr)
 	if err != nil {

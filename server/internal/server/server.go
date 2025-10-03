@@ -15,6 +15,10 @@ import (
 	"github.com/markbates/goth/providers/google"
 )
 
+var (
+	isProduction = os.Getenv("ENV") == "production"
+)
+
 type Server struct {
 	port int
 	db   database.Service
@@ -38,7 +42,6 @@ func init() {
 
 	store := sessions.NewCookieStore([]byte(sessionSecret))
 
-	isProduction := os.Getenv("ENV") == "production"
 	log.Println("is production: ", isProduction)
 
 	domain := os.Getenv("SESSION_COOKIE_DOMAIN")
@@ -67,7 +70,7 @@ func NewServer() *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
 	NewServer := &Server{
 		port: port,
-		db:   database.New(),
+		db:   database.New(isProduction),
 	}
 
 	// Declare Server config
