@@ -36,7 +36,8 @@ type Service interface {
 
 	// gift stuff
 	CreateGift(ctx context.Context, userID string, name string, eventID string, toUserID string, urls []string) error
-	ListGifts(ctx context.Context, eventID string) ([]Gift, error)
+	ListGifts(ctx context.Context, userID, eventID string) ([]Gift, error)
+	UpdateGift(ctx context.Context, userID string, giftID string, eventID string, status GiftStatus) error
 }
 
 type service struct {

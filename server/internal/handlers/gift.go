@@ -15,10 +15,9 @@ type Gifts struct {
 }
 
 type createGiftRequest struct {
-	Name    string   `json:"name"`
-	EventID string   `json:"event_id"`
-	ToID    string   `json:"to_id"`
-	URLs    []string `json:"urls"`
+	Name string   `json:"name"`
+	ToID string   `json:"to_id"`
+	URLs []string `json:"urls"`
 }
 
 func GetGifts(db database.Service) http.HandlerFunc {
@@ -44,7 +43,7 @@ func GetGifts(db database.Service) http.HandlerFunc {
 			return
 		}
 
-		gifts, err := db.ListGifts(ctx, eventID)
+		gifts, err := db.ListGifts(ctx, userID, eventID)
 		if err != nil {
 			http.Error(w, "Error fetching gifts", http.StatusInternalServerError)
 			return
@@ -73,10 +72,8 @@ func CreateGift(db database.Service) http.HandlerFunc {
 			return
 		}
 
-		if req.EventID == "" {
-			http.Error(w, "Event ID is required", http.StatusBadRequest)
-			return
-		}
+		eventID := r.PathValue("event_id")
+
 		if req.Name == "" {
 			http.Error(w, "Gift name is required", http.StatusBadRequest)
 			return
@@ -88,7 +85,7 @@ func CreateGift(db database.Service) http.HandlerFunc {
 
 		ctx := r.Context()
 
-		hasAccess, err := checkIfUserHasAccessToEvents(ctx, db, userID, req.EventID)
+		hasAccess, err := checkIfUserHasAccessToEvents(ctx, db, userID, eventID)
 		if err != nil {
 			http.Error(w, "Error checking event access", http.StatusInternalServerError)
 			return
@@ -98,7 +95,7 @@ func CreateGift(db database.Service) http.HandlerFunc {
 			return
 		}
 
-		err = db.CreateGift(ctx, userID, req.Name, req.EventID, req.ToID, req.URLs)
+		err = db.CreateGift(ctx, userID, req.Name, eventID, req.ToID, req.URLs)
 		if err != nil {
 			http.Error(w, "Error creating gift", http.StatusInternalServerError)
 			return
@@ -107,6 +104,55 @@ func CreateGift(db database.Service) http.HandlerFunc {
 		_ = json.NewEncoder(w).Encode(nil)
 	}
 }
+
+type updateGiftRequest struct {
+	Status database.GiftStatus `json:"status"`
+}
+
+func UpdateGift(db database.Service) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Retrieve user ID from session
+		userID, err := gothic.GetFromSession("user_id", r)
+		if err != nil || userID == "" {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		decoder := json.NewDecoder(r.Body)
+		var req updateGiftRequest
+		err = decoder.Decode(&req)
+		if err != nil {
+			http.Error(w, "Invalid request payload", http.StatusBadRequest)
+			log.Println(err)
+			return
+		}
+
+		var (
+			eventID = r.PathValue("event_id")
+			giftID  = r.PathValue("gift_id")
+			ctx     = r.Context()
+		)
+
+		hasAccess, err := checkIfUserHasAccessToEvents(ctx, db, userID, eventID)
+		if err != nil {
+			http.Error(w, "Error checking event access", http.StatusInternalServerError)
+			return
+		}
+		if !hasAccess {
+			http.Error(w, "Event not found", http.StatusBadRequest)
+			return
+		}
+
+		err = db.UpdateGift(ctx, userID, giftID, eventID, req.Status)
+		if err != nil {
+			http.Error(w, "Error updating gift", http.StatusInternalServerError)
+			return
+		}
+
+		_ = json.NewEncoder(w).Encode(nil)
+	}
+}
+
 func checkIfUserHasAccessToEvents(
 	ctx context.Context,
 	db database.Service,

@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"sort"
 	"time"
 )
 
@@ -58,6 +59,10 @@ func (s *service) ListEvents(ctx context.Context, userID string) ([]Event, error
 
 		events = append(events, event)
 	}
+
+	sort.Slice(events, func(i, j int) bool {
+		return events[i].Date.After(events[j].Date)
+	})
 
 	return events, nil
 }
@@ -127,6 +132,10 @@ func (s *service) GetEventParticipants(ctx context.Context, eventID string) ([]U
 
 		users = append(users, user)
 	}
+
+	sort.Slice(users, func(i, j int) bool {
+		return users[i].Name < users[j].Name
+	})
 
 	return users, nil
 }

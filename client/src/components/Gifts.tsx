@@ -15,6 +15,16 @@ import Grid from '@mui/material/Grid';
 import Link from '@mui/material/Link';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import Modal from '@mui/material/Modal';
+import FormControl from '@mui/material/FormControl';
+import Tooltip from '@mui/material/Tooltip';
+import Chip from '@mui/material/Chip';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import InputLabel from '@mui/material/InputLabel';
+import axios from "axios"
+import Swal from "sweetalert2"
 
 interface Gift {
   id: string;
@@ -23,6 +33,7 @@ interface Gift {
   to_name: string;
   status: number;
   from_name: string;
+  status_frozen: boolean;
   created_at: Date;
   urls: string[];
 }
@@ -31,10 +42,49 @@ interface Gifts {
   gifts: Gift[];
 }
 
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
+
 const Secure: React.FC = () => {
   const {eventID} = useParams()
   const navigate = useNavigate();
   const [gifts, setGifts] = useState<Gifts | null>(null);
+  const [giftID, setGiftID] = useState("")
+  const [giftStatus, setGiftStatus] = useState(0)
+
+  const [openBuyModel, setOpennBuyModel] = React.useState(false);
+  const handleOpenBuyModal = (id: string) => {
+    setGiftID(id)
+    setOpennBuyModel(true);
+  }
+  const handleCloseBuyModal = () => setOpennBuyModel(false);
+
+  async function handleGiftStatusUpdate(e){
+        e.preventDefault()
+        try {
+
+            var requestBody: any = {};
+            requestBody.status = Number(giftStatus)
+            await axios.post('/api/events/'+eventID+ '/gifts/' + giftID+ '/update', requestBody)
+            window.location.reload()
+        } catch (error) {
+            console.log(error);
+            Swal.fire({
+                icon: "error",
+                title: "Failed to update",
+                text: error.response.data
+            });
+        }
+    }
 
   const fetchGifts = async () => {
     try {
@@ -73,7 +123,7 @@ const Secure: React.FC = () => {
                 </Grid>
                 <Grid size={12}>
                   <TableContainer component={Paper}>
-                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                    <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
                       <TableHead>
                         <TableRow>
                           <TableCell>Name</TableCell>
@@ -98,9 +148,9 @@ const Secure: React.FC = () => {
                             <TableCell align="right">
                               {
                                 {
-                                  0: "New",
-                                  1: "About to be bought by "+ gift.from_name,
-                                  2: "Bought by "+ gift.from_name
+                                  0: <Chip label="New" />,
+                                  1: <Tooltip title={"by " + gift.from_name}><Chip label="About to be bought" /></Tooltip>,
+                                  2: <Tooltip title={"by " + gift.from_name}><Chip label="Bought" /></Tooltip>
                                 }[gift.status]
                               }
                             </TableCell>
@@ -115,7 +165,39 @@ const Secure: React.FC = () => {
                                 ))}
                               </List>
                             </TableCell>
-                            <TableCell></TableCell>
+                            <TableCell>
+                              {!gift.status_frozen ? (
+                                <Box>
+                                <Tooltip title="Buy">
+                                <Button onClick={() => handleOpenBuyModal(gift.id)}><CreditCardIcon /></Button>
+                                </Tooltip>
+                                <Modal
+                                  open={openBuyModel}
+                                  onClose={handleCloseBuyModal}
+                                  aria-labelledby="modal-modal-title"
+                                  aria-describedby="modal-modal-description"
+                                >
+                                  <Box sx={style}>
+                                    <FormControl required sx={{ m: 1, minWidth: 240 }}>
+                                      <InputLabel variant="standard" htmlFor="uncontrolled-native">
+                                      Status
+                                    </InputLabel>
+                                      <Select
+                                        defaultValue={gift.status}
+                                        value={giftStatus}
+                                        label="Status"
+                                        onChange={e => {setGiftStatus(e.target.value)}}
+                                      >
+                                        <MenuItem value="0">New</MenuItem>
+                                        <MenuItem value="1">About to be bought</MenuItem>
+                                        <MenuItem value="2">Bought</MenuItem>
+                                      </Select>
+                                    </FormControl>
+                                    <Button variant="contained" onClick = {handleGiftStatusUpdate}>Update</Button>
+                                  </Box>
+                                </Modal></Box>
+                              ): (<Box></Box>)}
+                            </TableCell>
                           </TableRow>
                     ))}
                       </TableBody>

@@ -86,7 +86,6 @@ const Secure: React.FC = () => {
         try {
             var requestBody: any = {};
             requestBody.name = name;
-            requestBody.event_id = eventID
             requestBody.to_id = toID
             var urls = []
             if (link1 != "") {
