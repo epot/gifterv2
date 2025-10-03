@@ -78,7 +78,7 @@ const style = {
 
 const Secure: React.FC = () => {
   const [tabValue, setTabValue] = React.useState('1');
-  const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+  const handleTabChange = (_: React.SyntheticEvent, newValue: string) => {
     setTabValue(newValue);
   };
 
@@ -120,14 +120,14 @@ const Secure: React.FC = () => {
     }
   };
 
-  async function handleNewParticipant(e){
+  async function handleNewParticipant(e: any){
         e.preventDefault()
         try {
             var requestBody: any = {};
             requestBody.participant_email = newParticipantEmail
             await axios.post('/api/events/'+eventID+ '/participants/create', requestBody)
             fetchParticipants()
-        } catch (error) {
+        } catch (error: any) {
             console.log(error);
             Swal.fire({
                 icon: "error",
@@ -137,14 +137,14 @@ const Secure: React.FC = () => {
         }
   }
 
-  async function handleGiftStatusUpdate(e){
+  async function handleGiftStatusUpdate(e: any){
         e.preventDefault()
         try {
             var requestBody: any = {};
             requestBody.status = Number(giftStatus)
             await axios.post('/api/events/'+eventID+ '/gifts/' + giftID+ '/update', requestBody)
             fetchGifts();
-        } catch (error) {
+        } catch (error: any) {
             console.log(error);
             Swal.fire({
                 icon: "error",

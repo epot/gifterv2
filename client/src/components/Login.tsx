@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2"
 import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
-import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -21,14 +20,14 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
 
-  async function handleLogin(e){
+  async function handleLogin(e: any){
         e.preventDefault()
         try {
             const requestBody = {email, password}
             const response = await axios.post('/auth/login', requestBody)
             localStorage.setItem('access_token', response.data.access_token)
             navigate('/')
-        } catch (error) {
+        } catch (error: any) {
             console.log(error);
             Swal.fire({
                 icon: "error",

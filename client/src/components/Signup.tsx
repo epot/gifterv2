@@ -15,14 +15,14 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState("")
   const [name, setName] = useState("")
 
-  async function handleSignup(e){
+  async function handleSignup(e: any){
         e.preventDefault()
         try {
             const requestBody = {email, password, name}
             const response = await axios.post('/auth/signup', requestBody)
             localStorage.setItem('access_token', response.data.access_token)
             navigate('/')
-        } catch (error) {
+        } catch (error: any) {
             console.log(error);
             Swal.fire({
                 icon: "error",

@@ -235,3 +235,5 @@ dist
 
 # Go workspace file
 go.work
+
+server/api.yaml

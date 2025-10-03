@@ -73,7 +73,7 @@ const Secure: React.FC = () => {
     }
   };
 
-  async function handleSubmit(e){
+  async function handleSubmit(e: any){
         e.preventDefault();
         if (!e.target.checkValidity()) {
           Swal.fire({
@@ -100,7 +100,7 @@ const Secure: React.FC = () => {
             requestBody.urls = urls
             await axios.post('/api/events/' + eventID + "/gifts/create", requestBody)
             navigate('/events/' + eventID + "/gifts")
-        } catch (error) {
+        } catch (error: any) {
             console.log(error);
             Swal.fire({
                 icon: "error",

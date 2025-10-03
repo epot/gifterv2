@@ -31,18 +31,18 @@ const Secure: React.FC = () => {
 
       await res.json();
     } catch (err) {
-      console.error("Error fetching user:", err);
+      console.error("Error fetching user:src/components/NewGift.tsx:76", err);
       navigate("/"); // Redirect to login if unauthorized or error occurs
     }
   };
 
-  async function handleCreate(e){
+  async function handleCreate(e: any){
         e.preventDefault()
         try {
             const requestBody = {name, date}
-            const response = await axios.post('/api/events/create', requestBody)
+            await axios.post('/api/events/create', requestBody)
             navigate('/events')
-        } catch (error) {
+        } catch (error: any) {
             console.log(error);
             Swal.fire({
                 icon: "error",
