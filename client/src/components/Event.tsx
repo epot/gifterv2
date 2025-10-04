@@ -96,7 +96,6 @@ const Secure: React.FC = () => {
   const navigate = useNavigate();
   const [gifts, setGifts] = useState<Gifts | null>(null);
   const [giftID, setGiftID] = useState("")
-  const [newParticipantEmail, setNewParticipantEmail] = useState("")
   const [giftStatus, setGiftStatus] = useState(0)
   const [participants, setParticipants] = useState<Participants | null>(null);
 

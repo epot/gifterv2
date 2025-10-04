@@ -2,10 +2,13 @@ runtime: nodejs24
 service: default
 
 handlers:
+- url: /gifter.png
+  static_files: dist/gifter.png
+  upload: dist/gifter.png
+- url: /assets/(.*)
+  static_files: dist/assets/\1
+  upload: dist/assets/(.*)
 - url: /(.*)
   static_files: dist/index.html
   upload: dist/index.html
   secure: always
-
-- url: /
-  static_dir: dist
