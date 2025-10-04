@@ -46,6 +46,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import DeleteIcon from '@mui/icons-material/Delete';
+import HttpsIcon from '@mui/icons-material/Https';
 
 const addParticipantValidationSchema = Yup.object().shape({
     participant_email: Yup.string()
@@ -64,6 +65,7 @@ interface Gift {
   status_frozen: boolean;
   created_at: Date;
   urls: string[];
+  secret: boolean;
 }
 
 interface Gifts {
@@ -259,7 +261,14 @@ const Secure: React.FC = () => {
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                               >
                                 <TableCell component="th" scope="row">
-                                  <Tooltip title={"idea from " + gift.creator_name}><Chip label={gift.name} /></Tooltip>
+                                  {gift.secret ? 
+                                  <HttpsIcon/> : <></>}
+                                  {gift.name == "" ?  <></> : 
+                                    <Tooltip title={"idea from " + gift.creator_name}>
+                                      
+                                        <Chip label={gift.name} />
+                                    </Tooltip>
+                                  }
                                 </TableCell>
                                 <TableCell align="right"><Chip label={gift.to_name}/></TableCell>
                                 <TableCell align="right">

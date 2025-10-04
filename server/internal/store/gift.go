@@ -34,6 +34,7 @@ type GiftContent struct {
 	ToID   string     `json:"to"`
 	FromID *string    `json:"from"`
 	URLs   []string   `json:"urls"`
+	Secret bool       `json:"secret"`
 }
 
 func (s *store) ListGifts(ctx context.Context, userID, eventID string) ([]Gift, error) {
@@ -91,12 +92,14 @@ func (s *store) CreateGift(
 	eventID string,
 	toUserID string,
 	urls []string,
+	secret bool,
 ) error {
 	content := GiftContent{
 		Name:   name,
 		Status: NewGiftStatus,
 		ToID:   toUserID,
 		URLs:   urls,
+		Secret: secret,
 	}
 
 	contentMarshalled, err := json.Marshal(content)

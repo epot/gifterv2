@@ -39,7 +39,7 @@ type Store interface {
 	AddEventParticipant(ctx context.Context, eventID string, userEmail string) error
 
 	// gift stuff
-	CreateGift(ctx context.Context, userID string, name string, eventID string, toUserID string, urls []string) error
+	CreateGift(ctx context.Context, userID string, name string, eventID string, toUserID string, urls []string, secret bool) error
 	ListGifts(ctx context.Context, userID, eventID string) ([]Gift, error)
 	UpdateGift(ctx context.Context, userID string, giftID string, eventID string, status GiftStatus) error
 }

@@ -23,6 +23,7 @@ type Gift struct {
 	URLs         []string         `json:"urls"`
 	CreatedAt    time.Time        `json:"created_at"`
 	EventID      string           `json:"event_id"`
+	Secret       bool             `json:"secret"`
 }
 
 type Gifts struct {
@@ -30,9 +31,10 @@ type Gifts struct {
 }
 
 type createGiftRequest struct {
-	Name string   `json:"name"`
-	ToID string   `json:"to_id"`
-	URLs []string `json:"urls"`
+	Name   string   `json:"name"`
+	ToID   string   `json:"to_id"`
+	URLs   []string `json:"urls"`
+	Secret bool     `json:"secret"`
 }
 
 func GetGifts(db store.Store) http.HandlerFunc {
@@ -132,7 +134,7 @@ func CreateGift(db store.Store) http.HandlerFunc {
 			}
 		}
 
-		err = db.CreateGift(ctx, userID, req.Name, eventID, req.ToID, urls)
+		err = db.CreateGift(ctx, userID, req.Name, eventID, req.ToID, urls, req.Secret)
 		if err != nil {
 			http.Error(w, "Error creating gift", http.StatusInternalServerError)
 			return
@@ -288,6 +290,14 @@ func StoreGiftToGift(ctx context.Context, s store.Store, userID string, gift sto
 	if gift.Content.ToID == userID {
 		g.Status = store.SecretGiftStatus
 		g.StatusFrozen = true
+	}
+
+	if gift.Content.Secret {
+		g.Secret = true
+		if gift.Content.ToID == userID {
+			g.Name = ""
+			g.URLs = nil
+		}
 	}
 
 	return g, nil

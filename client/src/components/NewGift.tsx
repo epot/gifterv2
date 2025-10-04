@@ -12,9 +12,13 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormHelperText from '@mui/material/FormHelperText';
+import Switch from '@mui/material/Switch';
 
 const validationSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
+    secret: Yup.boolean(),
     link1: Yup.string(),
     link2: Yup.string(),
     link3: Yup.string(),
@@ -116,7 +120,7 @@ const Secure: React.FC = () => {
               <Grid container spacing={1} >
                 <Grid size={12}>
                   <Formik
-                      initialValues={{name: '', link1: '', link2: '', link3: ''}}
+                      initialValues={{name: '', link1: '', link2: '', link3: '', secret:false}}
                       validationSchema={validationSchema}
                       onSubmit={handleCreate}
                   >
@@ -153,6 +157,17 @@ const Secure: React.FC = () => {
                                   <MenuItem key={user.id} value={user.id}>{user.name}</MenuItem>
                                 ))}
                               </Select>
+                              <FormControlLabel
+                                  control={
+                                    <Switch 
+                                      name="secret"
+                                      onChange={handleChange}
+                                      onBlur={handleBlur}
+                                    />
+                                  }
+                                  label="Secret"
+                                />
+                              <FormHelperText>A secret gift's name and links will be obfuscated for its recipient.</FormHelperText>
                               <TextField
                                   label="Link"
                                   variant="outlined"
