@@ -1,4 +1,4 @@
-package database
+package store
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"sort"
 )
 
-func (s *service) GetEventParticipants(ctx context.Context, eventID string) ([]User, error) {
+func (s *store) GetEventParticipants(ctx context.Context, eventID string) ([]User, error) {
 	rows, err := s.db.QueryContext(
 		ctx,
 		`
@@ -68,7 +68,7 @@ func IsUnknownParticipantError(err error) bool {
 	return errors.As(err, &unknownErr)
 }
 
-func (s *service) AddEventParticipant(ctx context.Context, eventID string, userEmail string) error {
+func (s *store) AddEventParticipant(ctx context.Context, eventID string, userEmail string) error {
 	var userID string
 	err := s.db.QueryRowContext(ctx, "SELECT id FROM users WHERE email = $1", userEmail).Scan(&userID)
 	if err != nil {

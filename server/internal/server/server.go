@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/epot/gifterv2/internal/database"
+	"github.com/epot/gifterv2/internal/store"
 	"github.com/gorilla/sessions"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
@@ -21,7 +21,7 @@ var (
 
 type Server struct {
 	port int
-	db   database.Service
+	db   store.Store
 }
 
 func init() {
@@ -70,7 +70,7 @@ func NewServer() *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
 	NewServer := &Server{
 		port: port,
-		db:   database.New(isProduction),
+		db:   store.New(isProduction),
 	}
 
 	// Declare Server config

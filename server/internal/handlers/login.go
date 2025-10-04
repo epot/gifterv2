@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/epot/gifterv2/internal/database"
+	"github.com/epot/gifterv2/internal/store"
 	"github.com/markbates/goth/gothic"
 	"log"
 	"net/http"
@@ -14,7 +14,7 @@ type loginRequest struct {
 	Password string `json:"password"`
 }
 
-func LoginHandler(db database.Service) http.HandlerFunc {
+func LoginHandler(db store.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		decoder := json.NewDecoder(r.Body)
 

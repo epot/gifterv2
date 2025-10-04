@@ -1,4 +1,4 @@
-package database
+package store
 
 import (
 	"context"
@@ -27,7 +27,7 @@ type Event struct {
 	Type        EventType `json:"event_type"`
 }
 
-func (s *service) ListEvents(ctx context.Context, userID string) ([]Event, error) {
+func (s *store) ListEvents(ctx context.Context, userID string) ([]Event, error) {
 	rows, err := s.db.QueryContext(
 		ctx,
 		`
@@ -67,7 +67,7 @@ func (s *service) ListEvents(ctx context.Context, userID string) ([]Event, error
 	return events, nil
 }
 
-func (s *service) CreateEvent(ctx context.Context, userID string, eventName string, eventDate time.Time) (finalErr error) {
+func (s *store) CreateEvent(ctx context.Context, userID string, eventName string, eventDate time.Time) (finalErr error) {
 	txn, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("error starting transaction: %w", err)

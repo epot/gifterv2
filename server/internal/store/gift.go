@@ -1,4 +1,4 @@
-package database
+package store
 
 import (
 	"context"
@@ -40,7 +40,7 @@ type GiftContent struct {
 	URLs   []string   `json:"urls"`
 }
 
-func (s *service) ListGifts(ctx context.Context, userID, eventID string) ([]Gift, error) {
+func (s *store) ListGifts(ctx context.Context, userID, eventID string) ([]Gift, error) {
 	var (
 		userIDToName = make(map[string]string)
 	)
@@ -77,7 +77,7 @@ func (s *service) ListGifts(ctx context.Context, userID, eventID string) ([]Gift
 			return nil, fmt.Errorf("error scanning gift: %w", err)
 		}
 
-		creatorName, err := s.userIDToName(ctx, creatorID, userIDToName)
+		creatorName, err := s.UserIDToName(ctx, creatorID, userIDToName)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get creator name: %w", err)
 		}
@@ -91,13 +91,13 @@ func (s *service) ListGifts(ctx context.Context, userID, eventID string) ([]Gift
 		gift.Name = giftContent.Name
 		gift.Status = giftContent.Status
 
-		toName, err := s.userIDToName(ctx, giftContent.ToID, userIDToName)
+		toName, err := s.UserIDToName(ctx, giftContent.ToID, userIDToName)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get to name: %w", err)
 		}
 		gift.ToName = toName
 		if giftContent.FromID != "" {
-			fromName, err := s.userIDToName(ctx, giftContent.FromID, userIDToName)
+			fromName, err := s.UserIDToName(ctx, giftContent.FromID, userIDToName)
 			if err != nil {
 				return nil, fmt.Errorf("failed to get from name: %w", err)
 			}
@@ -116,25 +116,7 @@ func (s *service) ListGifts(ctx context.Context, userID, eventID string) ([]Gift
 	return gifts, nil
 }
 
-func (s *service) userIDToName(ctx context.Context, userID string, userIDToName map[string]string) (string, error) {
-	if userID == "" {
-		return "", errors.New("user id is empty")
-	}
-	if name, exists := userIDToName[userID]; exists {
-		return name, nil
-	}
-
-	var name string
-	err := s.db.QueryRowContext(ctx, "SELECT name FROM users WHERE id = $1", userID).Scan(&name)
-	if err != nil {
-		return "", fmt.Errorf("failed to get user name: %w", err)
-	}
-
-	userIDToName[userID] = name
-	return name, nil
-}
-
-func (s *service) CreateGift(
+func (s *store) CreateGift(
 	ctx context.Context,
 	userID string,
 	name string,
@@ -162,7 +144,7 @@ func (s *service) CreateGift(
 	return nil
 }
 
-func (s *service) UpdateGift(ctx context.Context, userID string, giftID string, eventID string, status GiftStatus) error {
+func (s *store) UpdateGift(ctx context.Context, userID string, giftID string, eventID string, status GiftStatus) error {
 	var contentMarshalled []byte
 	err := s.db.QueryRowContext(
 		ctx,

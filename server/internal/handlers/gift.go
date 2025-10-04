@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/epot/gifterv2/internal/database"
+	"github.com/epot/gifterv2/internal/store"
 	"github.com/markbates/goth/gothic"
 	"log"
 	"net/http"
@@ -12,7 +12,7 @@ import (
 )
 
 type Gifts struct {
-	Gifts []database.Gift `json:"gifts"`
+	Gifts []store.Gift `json:"gifts"`
 }
 
 type createGiftRequest struct {
@@ -21,7 +21,7 @@ type createGiftRequest struct {
 	URLs []string `json:"urls"`
 }
 
-func GetGifts(db database.Service) http.HandlerFunc {
+func GetGifts(db store.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Retrieve user ID from session
 		userID, err := gothic.GetFromSession("user_id", r)
@@ -55,7 +55,7 @@ func GetGifts(db database.Service) http.HandlerFunc {
 	}
 }
 
-func CreateGift(db database.Service) http.HandlerFunc {
+func CreateGift(db store.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Retrieve user ID from session
 		userID, err := gothic.GetFromSession("user_id", r)
@@ -115,10 +115,10 @@ func CreateGift(db database.Service) http.HandlerFunc {
 }
 
 type updateGiftRequest struct {
-	Status database.GiftStatus `json:"status"`
+	Status store.GiftStatus `json:"status"`
 }
 
-func UpdateGift(db database.Service) http.HandlerFunc {
+func UpdateGift(db store.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Retrieve user ID from session
 		userID, err := gothic.GetFromSession("user_id", r)
@@ -164,7 +164,7 @@ func UpdateGift(db database.Service) http.HandlerFunc {
 
 func checkIfUserHasAccessToEvents(
 	ctx context.Context,
-	db database.Service,
+	db store.Store,
 	userID string,
 	eventID string,
 ) (bool, error) {

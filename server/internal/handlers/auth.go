@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/epot/gifterv2/internal/database"
+	"github.com/epot/gifterv2/internal/store"
 	"github.com/markbates/goth/gothic"
 )
 
-func GoogleCallbackHandler(db database.Service) http.HandlerFunc {
+func GoogleCallbackHandler(db store.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Finalize the authentication process
 		user, err := gothic.CompleteUserAuth(w, r)
@@ -21,7 +21,7 @@ func GoogleCallbackHandler(db database.Service) http.HandlerFunc {
 
 		// Save user to the database
 		ctx := r.Context()
-		userID, err := db.FindOrCreateUser(ctx, &database.User{
+		userID, err := db.FindOrCreateUser(ctx, &store.User{
 			Name:    user.Name,
 			Email:   user.Email,
 			Picture: user.AvatarURL,

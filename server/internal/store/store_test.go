@@ -1,4 +1,4 @@
-package database
+package store
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-func mustStartPostgresContainer() (func(context.Context) error, error) {
+func mustStartPostgresContainer() (func(context.Context, ...testcontainers.TerminateOption) error, error) {
 	var (
 		dbName = "database"
 		dbPwd  = "password"
@@ -67,14 +67,14 @@ func TestMain(m *testing.M) {
 }
 
 func TestNew(t *testing.T) {
-	srv := New()
+	srv := New(false)
 	if srv == nil {
 		t.Fatal("New() returned nil")
 	}
 }
 
 func TestHealth(t *testing.T) {
-	srv := New()
+	srv := New(false)
 
 	stats := srv.Health()
 
@@ -92,7 +92,7 @@ func TestHealth(t *testing.T) {
 }
 
 func TestClose(t *testing.T) {
-	srv := New()
+	srv := New(false)
 
 	if srv.Close() != nil {
 		t.Fatalf("expected Close() to return nil")

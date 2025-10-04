@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/epot/gifterv2/internal/database"
+	"github.com/epot/gifterv2/internal/store"
 	"github.com/markbates/goth/gothic"
 )
 
-func GetUserHandler(db database.Service) http.HandlerFunc {
+func GetUserHandler(db store.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Retrieve user ID from session
 		userID, err := gothic.GetFromSession("user_id", r)

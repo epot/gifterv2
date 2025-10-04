@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/epot/gifterv2/internal/database"
+	"github.com/epot/gifterv2/internal/store"
 )
 
 func HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
@@ -20,7 +20,7 @@ func HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(jsonResp)
 }
 
-func HealthHandler(db database.Service) http.HandlerFunc {
+func HealthHandler(db store.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		jsonResp, _ := json.Marshal(db.Health())
 		_, _ = w.Write(jsonResp)

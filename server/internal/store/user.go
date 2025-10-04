@@ -1,4 +1,4 @@
-package database
+package store
 
 import (
 	"context"
@@ -37,7 +37,7 @@ func HashPassword(password string) (string, error) {
 	return string(bytes), err
 }
 
-func (s *service) FindOrCreateUser(ctx context.Context, user *User) (string, error) {
+func (s *store) FindOrCreateUser(ctx context.Context, user *User) (string, error) {
 	var userID string
 	err := s.db.QueryRowContext(ctx, "SELECT id FROM users WHERE email = $1", user.Email).Scan(&userID)
 	if err != nil {
@@ -51,7 +51,7 @@ func (s *service) FindOrCreateUser(ctx context.Context, user *User) (string, err
 	return userID, nil
 }
 
-func (s *service) Login(ctx context.Context, userEmail string, password string) (string, error) {
+func (s *store) Login(ctx context.Context, userEmail string, password string) (string, error) {
 	var (
 		userID           string
 		passwordHashInDB []byte
@@ -72,7 +72,7 @@ func (s *service) Login(ctx context.Context, userEmail string, password string) 
 	return userID, nil
 }
 
-func (s *service) Signup(ctx context.Context, userName string, userEmail string, password string) (string, error) {
+func (s *store) Signup(ctx context.Context, userName string, userEmail string, password string) (string, error) {
 	var userID string
 
 	hash, err := HashPassword(password)
@@ -92,7 +92,7 @@ func (s *service) Signup(ctx context.Context, userName string, userEmail string,
 	return userID, nil
 }
 
-func (s *service) GetUserByID(ctx context.Context, userID string) (*User, error) {
+func (s *store) GetUserByID(ctx context.Context, userID string) (*User, error) {
 	var (
 		user    User
 		picture sql.NullString
@@ -105,4 +105,22 @@ func (s *service) GetUserByID(ctx context.Context, userID string) (*User, error)
 		user.Picture = picture.String
 	}
 	return &user, err
+}
+
+func (s *store) UserIDToName(ctx context.Context, userID string, userIDToName map[string]string) (string, error) {
+	if userID == "" {
+		return "", errors.New("user id is empty")
+	}
+	if name, exists := userIDToName[userID]; exists {
+		return name, nil
+	}
+
+	var name string
+	err := s.db.QueryRowContext(ctx, "SELECT name FROM users WHERE id = $1", userID).Scan(&name)
+	if err != nil {
+		return "", fmt.Errorf("failed to get user name: %w", err)
+	}
+
+	userIDToName[userID] = name
+	return name, nil
 }

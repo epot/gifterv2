@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/epot/gifterv2/internal/database"
+	"github.com/epot/gifterv2/internal/store"
 	"github.com/markbates/goth/gothic"
 	"log"
 	"net/http"
@@ -15,7 +15,7 @@ type signupRequest struct {
 	Password string `json:"password"`
 }
 
-func SignupHandler(db database.Service) http.HandlerFunc {
+func SignupHandler(db store.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		decoder := json.NewDecoder(r.Body)
 
@@ -31,7 +31,7 @@ func SignupHandler(db database.Service) http.HandlerFunc {
 		ctx := r.Context()
 		userID, err := db.Signup(ctx, req.Name, req.Email, req.Password)
 		if err != nil {
-			if database.IsEmailAlreadyUsedError(err) {
+			if store.IsEmailAlreadyUsedError(err) {
 				http.Error(w, "Email already used", http.StatusBadRequest)
 				return
 			}

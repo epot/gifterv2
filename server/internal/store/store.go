@@ -1,4 +1,4 @@
-package database
+package store
 
 import (
 	"context"
@@ -13,10 +13,10 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 )
 
-// Service represents a service that interacts with a database.
-type Service interface {
+// Store represents a store that interacts with a database.
+type Store interface {
 	// Health returns a map of health status information.
-	// The keys and values in the map are service-specific.
+	// The keys and values in the map are store-specific.
 	Health() map[string]string
 
 	// Close terminates the database connection.
@@ -28,6 +28,7 @@ type Service interface {
 	Signup(ctx context.Context, userName string, userEmail string, password string) (string, error)
 	Login(ctx context.Context, userEmail string, password string) (string, error)
 	GetUserByID(ctx context.Context, userID string) (*User, error)
+	UserIDToName(ctx context.Context, userID string, userIDToName map[string]string) (string, error)
 
 	// event stuff
 	ListEvents(ctx context.Context, userID string) ([]Event, error)
@@ -43,7 +44,7 @@ type Service interface {
 	UpdateGift(ctx context.Context, userID string, giftID string, eventID string, status GiftStatus) error
 }
 
-type service struct {
+type store struct {
 	db *sql.DB
 }
 
@@ -53,10 +54,10 @@ var (
 	username   = os.Getenv("DB_USERNAME")
 	port       = os.Getenv("DB_PORT")
 	host       = os.Getenv("DB_HOST")
-	dbInstance *service
+	dbInstance *store
 )
 
-func New(isProduction bool) Service {
+func New(isProduction bool) Store {
 	// Reuse Connection
 	if dbInstance != nil {
 		return dbInstance
@@ -79,7 +80,7 @@ func New(isProduction bool) Service {
 	if err != nil {
 		log.Fatal(err)
 	}
-	dbInstance = &service{
+	dbInstance = &store{
 		db: db,
 	}
 	return dbInstance
@@ -87,7 +88,7 @@ func New(isProduction bool) Service {
 
 // Health checks the health of the database connection by pinging the database.
 // It returns a map with keys indicating various health statistics.
-func (s *service) Health() map[string]string {
+func (s *store) Health() map[string]string {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
@@ -140,7 +141,7 @@ func (s *service) Health() map[string]string {
 // It logs a message indicating the disconnection from the specific database.
 // If the connection is successfully closed, it returns nil.
 // If an error occurs while closing the connection, it returns the error.
-func (s *service) Close() error {
+func (s *store) Close() error {
 	log.Printf("Disconnected from database: %s", database)
 	return s.db.Close()
 }

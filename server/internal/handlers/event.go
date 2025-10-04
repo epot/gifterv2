@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/epot/gifterv2/internal/database"
+	"github.com/epot/gifterv2/internal/store"
 	"github.com/markbates/goth/gothic"
 	"log"
 	"net/http"
@@ -10,10 +10,10 @@ import (
 )
 
 type Events struct {
-	Events []database.Event `json:"events"`
+	Events []store.Event `json:"events"`
 }
 
-func GetEvents(db database.Service) http.HandlerFunc {
+func GetEvents(db store.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Retrieve user ID from session
 		userID, err := gothic.GetFromSession("user_id", r)
@@ -39,7 +39,7 @@ type createEventRequest struct {
 	Date time.Time `json:"date"`
 }
 
-func CreateEvent(db database.Service) http.HandlerFunc {
+func CreateEvent(db store.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Retrieve user ID from session
 		userID, err := gothic.GetFromSession("user_id", r)
@@ -70,10 +70,10 @@ func CreateEvent(db database.Service) http.HandlerFunc {
 }
 
 type Participants struct {
-	Users []database.User `json:"users"`
+	Users []store.User `json:"users"`
 }
 
-func GetEventParticipants(db database.Service) http.HandlerFunc {
+func GetEventParticipants(db store.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Retrieve user ID from session
 		userID, err := gothic.GetFromSession("user_id", r)
@@ -111,7 +111,7 @@ type newParticipantRequest struct {
 	ParticipantEmail string `json:"participant_email"`
 }
 
-func AddEventParticipant(db database.Service) http.HandlerFunc {
+func AddEventParticipant(db store.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Retrieve user ID from session
 		userID, err := gothic.GetFromSession("user_id", r)
@@ -145,7 +145,7 @@ func AddEventParticipant(db database.Service) http.HandlerFunc {
 		}
 		err = db.AddEventParticipant(ctx, eventID, req.ParticipantEmail)
 		if err != nil {
-			if database.IsUnknownParticipantError(err) {
+			if store.IsUnknownParticipantError(err) {
 				http.Error(w, "Email does not exist", http.StatusBadRequest)
 				return
 			}
