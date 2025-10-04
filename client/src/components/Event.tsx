@@ -39,6 +39,7 @@ import Avatar from '@mui/material/Avatar';
 import TextField from '@mui/material/TextField';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
+import HelpIcon from '@mui/icons-material/Help';
 
 const addParticipantValidationSchema = Yup.object().shape({
     participant_email: Yup.string()
@@ -149,6 +150,7 @@ const Secure: React.FC = () => {
             requestBody.status = Number(giftStatus)
             await axios.post('/api/events/'+eventID+ '/gifts/' + giftID+ '/update', requestBody)
             fetchGifts();
+            handleCloseBuyModal();
         } catch (error: any) {
             console.log(error);
             Swal.fire({
@@ -232,7 +234,8 @@ const Secure: React.FC = () => {
                                     {
                                       0: <Chip label="New" />,
                                       1: <Tooltip title={"by " + gift.from_name}><Chip label="About to be bought" /></Tooltip>,
-                                      2: <Tooltip title={"by " + gift.from_name}><Chip label="Bought" /></Tooltip>
+                                      2: <Tooltip title={"by " + gift.from_name}><Chip label="Bought" /></Tooltip>,
+                                      4: <Tooltip title="Tin tiiinnnn"><HelpIcon /></Tooltip>,
                                     }[gift.status]
                                   }
                                 </TableCell>

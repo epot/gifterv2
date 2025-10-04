@@ -9,10 +9,24 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 )
 
+type Gift struct {
+	ID           string           `json:"id"`
+	Name         string           `json:"name"`
+	Status       store.GiftStatus `json:"status"`
+	CreatorName  string           `json:"creator_name"`
+	ToName       string           `json:"to_name"`
+	FromName     string           `json:"from_name"`
+	StatusFrozen bool             `json:"status_frozen"`
+	URLs         []string         `json:"urls"`
+	CreatedAt    time.Time        `json:"created_at"`
+	EventID      string           `json:"event_id"`
+}
+
 type Gifts struct {
-	Gifts []store.Gift `json:"gifts"`
+	Gifts []Gift `json:"gifts"`
 }
 
 type createGiftRequest struct {
@@ -50,8 +64,19 @@ func GetGifts(db store.Store) http.HandlerFunc {
 			return
 		}
 
+		result := make([]Gift, 0, len(gifts))
+		for _, gift := range gifts {
+			g, err := StoreGiftToGift(ctx, db, userID, gift)
+			if err != nil {
+				http.Error(w, "Error processing gifts", http.StatusInternalServerError)
+				log.Println("Error converting gift:", err)
+				return
+			}
+			result = append(result, g)
+		}
+
 		// Respond with user data
-		_ = json.NewEncoder(w).Encode(Gifts{Gifts: gifts})
+		_ = json.NewEncoder(w).Encode(Gifts{Gifts: result})
 	}
 }
 
@@ -182,4 +207,41 @@ func checkIfUserHasAccessToEvents(
 	}
 
 	return foundEvent, nil
+}
+
+func StoreGiftToGift(ctx context.Context, s store.Store, userID string, gift store.Gift) (g Gift, _ error) {
+	var userIDToName = make(map[string]string)
+	g.ID = gift.ID
+	g.EventID = gift.EventID
+	g.CreatedAt = gift.CreatedAt
+
+	creatorName, err := s.UserIDToName(ctx, gift.CreatorID, userIDToName)
+	if err != nil {
+		return g, fmt.Errorf("failed to get creator name: %w", err)
+	}
+	g.CreatorName = creatorName
+
+	toName, err := s.UserIDToName(ctx, gift.Content.ToID, userIDToName)
+	if err != nil {
+		return g, fmt.Errorf("failed to get to name: %w", err)
+	}
+	g.ToName = toName
+	if gift.Content.FromID != nil {
+		fromName, err := s.UserIDToName(ctx, *gift.Content.FromID, userIDToName)
+		if err != nil {
+			return g, fmt.Errorf("failed to get from name: %w", err)
+		}
+		g.FromName = fromName
+		g.StatusFrozen = *gift.Content.FromID != userID
+	}
+	g.URLs = gift.Content.URLs
+	g.Name = gift.Content.Name
+	g.Status = gift.Content.Status
+
+	if gift.Content.ToID == userID {
+		g.Status = store.SecretGiftStatus
+		g.StatusFrozen = true
+	}
+
+	return g, nil
 }

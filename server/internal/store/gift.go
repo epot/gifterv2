@@ -15,20 +15,16 @@ const (
 	NewGiftStatus = iota
 	AboutToBeBoughtGiftStatus
 	BoughtGiftStatus
-	MarkedForDeletionStatus
+	MarkedForDeletionGiftStatus
+	SecretGiftStatus
 )
 
 type Gift struct {
-	ID           string     `json:"id"`
-	Name         string     `json:"name"`
-	Status       GiftStatus `json:"status"`
-	CreatorName  string     `json:"creator_name"`
-	ToName       string     `json:"to_name"`
-	FromName     string     `json:"from_name"`
-	StatusFrozen bool       `json:"status_frozen"`
-	URLs         []string   `json:"urls"`
-	CreatedAt    time.Time  `json:"created_at"`
-	EventID      string     `json:"event_id"`
+	ID        string
+	CreatedAt time.Time
+	CreatorID string
+	EventID   string
+	Content   GiftContent `json:"content"`
 }
 
 // how we serialize the content field in the gifts table
@@ -36,15 +32,11 @@ type GiftContent struct {
 	Name   string     `json:"name"`
 	Status GiftStatus `json:"status"`
 	ToID   string     `json:"to"`
-	FromID string     `json:"from"`
+	FromID *string    `json:"from"`
 	URLs   []string   `json:"urls"`
 }
 
 func (s *store) ListGifts(ctx context.Context, userID, eventID string) ([]Gift, error) {
-	var (
-		userIDToName = make(map[string]string)
-	)
-
 	rows, err := s.db.QueryContext(
 		ctx,
 		`
@@ -69,43 +61,19 @@ func (s *store) ListGifts(ctx context.Context, userID, eventID string) ([]Gift, 
 		var (
 			gift             Gift
 			giftContent      GiftContent
-			creatorID        string
 			giftContentBytes []byte
 		)
-		err = rows.Scan(&gift.ID, &creatorID, &gift.EventID, &gift.CreatedAt, &giftContentBytes)
+		err = rows.Scan(&gift.ID, &gift.CreatorID, &gift.EventID, &gift.CreatedAt, &giftContentBytes)
 		if err != nil {
 			return nil, fmt.Errorf("error scanning gift: %w", err)
 		}
-
-		creatorName, err := s.UserIDToName(ctx, creatorID, userIDToName)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get creator name: %w", err)
-		}
-		gift.CreatorName = creatorName
 
 		err = json.Unmarshal(giftContentBytes, &giftContent)
 		if err != nil {
 			return nil, fmt.Errorf("failed to unmarshal gift content: %w", err)
 		}
 
-		gift.Name = giftContent.Name
-		gift.Status = giftContent.Status
-
-		toName, err := s.UserIDToName(ctx, giftContent.ToID, userIDToName)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get to name: %w", err)
-		}
-		gift.ToName = toName
-		if giftContent.FromID != "" {
-			fromName, err := s.UserIDToName(ctx, giftContent.FromID, userIDToName)
-			if err != nil {
-				return nil, fmt.Errorf("failed to get from name: %w", err)
-			}
-			gift.FromName = fromName
-			gift.StatusFrozen = giftContent.FromID != userID
-		}
-		gift.URLs = giftContent.URLs
-
+		gift.Content = giftContent
 		gifts = append(gifts, gift)
 	}
 
@@ -163,10 +131,10 @@ func (s *store) UpdateGift(ctx context.Context, userID string, giftID string, ev
 		return fmt.Errorf("failed to unmarshal gift content: %w", err)
 	}
 
-	if giftContent.FromID != "" && giftContent.FromID != userID {
+	if giftContent.FromID != nil && *giftContent.FromID != userID {
 		return errors.New("gift already has a buyer")
 	}
-	giftContent.FromID = userID
+	giftContent.FromID = &userID
 	giftContent.Status = status
 
 	contentMarshalled, err = json.Marshal(giftContent)
