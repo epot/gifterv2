@@ -247,7 +247,6 @@ const Secure: React.FC = () => {
                               <TableCell>Name</TableCell>
                               <TableCell align="right">To</TableCell>
                               <TableCell align="right">Status</TableCell>
-                              <TableCell align="right">Idea from</TableCell>
                               <TableCell align="right">Date</TableCell>
                               <TableCell align="right">Links</TableCell>
                               <TableCell align="right">Action</TableCell>
@@ -260,7 +259,7 @@ const Secure: React.FC = () => {
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                               >
                                 <TableCell component="th" scope="row">
-                                  <Chip label={gift.name}/>
+                                  <Tooltip title={"idea from " + gift.creator_name}><Chip label={gift.name} /></Tooltip>
                                 </TableCell>
                                 <TableCell align="right"><Chip label={gift.to_name}/></TableCell>
                                 <TableCell align="right">
@@ -273,7 +272,6 @@ const Secure: React.FC = () => {
                                     }[gift.status]
                                   }
                                 </TableCell>
-                                <TableCell align="right"><Chip label={gift.creator_name}/></TableCell>
                                 <TableCell align="right"><Chip label={new Date(gift.created_at).toDateString()}/></TableCell>
                                 <TableCell align="right">
                                   <List>
