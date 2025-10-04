@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios"
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2"
@@ -24,6 +24,7 @@ const validationSchema = Yup.object().shape({
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true)
 
   async function handleLogin(values: any){
     try {
@@ -52,11 +53,16 @@ const Login: React.FC = () => {
       } catch (err) {
         console.error("User not logged in:", err);
       }
+      setLoading(false)
     };
     checkUserStatus();
   }, [navigate]);
 
   return (
+    <>
+      {loading ? (
+        <Card>Loading...</Card>
+      ): (
      <Container>  
       <Card sx={{ minWidth: 275 }}>
         <CardContent>
@@ -151,7 +157,8 @@ const Login: React.FC = () => {
           </Box>
         </CardActions>
       </Card>
-    </Container>
+    </Container>)}
+    </>
   );
 };
 
