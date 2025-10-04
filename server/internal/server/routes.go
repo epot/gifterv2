@@ -43,6 +43,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.With(middleware.AuthMiddleware).Get("/api/events/{event_id}/gifts", handlers.GetGifts(s.db))
 	r.With(middleware.AuthMiddleware).Post("/api/events/{event_id}/gifts/create", handlers.CreateGift(s.db))
 	r.With(middleware.AuthMiddleware).Post("/api/events/{event_id}/gifts/{gift_id}/update", handlers.UpdateGift(s.db))
+	r.With(middleware.AuthMiddleware).Post("/api/events/{event_id}/gifts/{gift_id}/delete", handlers.DeleteGift(s.db))
 
 	return r
 }

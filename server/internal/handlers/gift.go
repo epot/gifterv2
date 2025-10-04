@@ -66,6 +66,9 @@ func GetGifts(db store.Store) http.HandlerFunc {
 
 		result := make([]Gift, 0, len(gifts))
 		for _, gift := range gifts {
+			if gift.Content.Status == store.MarkedForDeletionGiftStatus {
+				continue
+			}
 			g, err := StoreGiftToGift(ctx, db, userID, gift)
 			if err != nil {
 				http.Error(w, "Error processing gifts", http.StatusInternalServerError)
@@ -180,6 +183,50 @@ func UpdateGift(db store.Store) http.HandlerFunc {
 		err = db.UpdateGift(ctx, userID, giftID, eventID, req.Status)
 		if err != nil {
 			http.Error(w, "Error updating gift", http.StatusInternalServerError)
+			return
+		}
+
+		_ = json.NewEncoder(w).Encode(nil)
+	}
+}
+
+func DeleteGift(db store.Store) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Retrieve user ID from session
+		userID, err := gothic.GetFromSession("user_id", r)
+		if err != nil || userID == "" {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		decoder := json.NewDecoder(r.Body)
+		var req updateGiftRequest
+		err = decoder.Decode(&req)
+		if err != nil {
+			http.Error(w, "Invalid request payload", http.StatusBadRequest)
+			log.Println(err)
+			return
+		}
+
+		var (
+			eventID = r.PathValue("event_id")
+			giftID  = r.PathValue("gift_id")
+			ctx     = r.Context()
+		)
+
+		hasAccess, err := checkIfUserHasAccessToEvents(ctx, db, userID, eventID)
+		if err != nil {
+			http.Error(w, "Error checking event access", http.StatusInternalServerError)
+			return
+		}
+		if !hasAccess {
+			http.Error(w, "Event not found", http.StatusBadRequest)
+			return
+		}
+
+		err = db.UpdateGift(ctx, userID, giftID, eventID, store.MarkedForDeletionGiftStatus)
+		if err != nil {
+			http.Error(w, "Error deleting gift", http.StatusInternalServerError)
 			return
 		}
 

@@ -40,6 +40,12 @@ import TextField from '@mui/material/TextField';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import HelpIcon from '@mui/icons-material/Help';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const addParticipantValidationSchema = Yup.object().shape({
     participant_email: Yup.string()
@@ -100,12 +106,40 @@ const Secure: React.FC = () => {
   const [giftStatus, setGiftStatus] = useState(0)
   const [participants, setParticipants] = useState<Participants | null>(null);
 
-  const [openBuyModel, setOpennBuyModel] = React.useState(false);
+  const [openBuyModal, setOpenBuyModal] = React.useState(false);
   const handleOpenBuyModal = (id: string) => {
     setGiftID(id)
-    setOpennBuyModel(true);
+    setOpenBuyModal(true);
   }
-  const handleCloseBuyModal = () => setOpennBuyModel(false);
+  const handleCloseBuyModal = () => setOpenBuyModal(false);
+
+  const [openDeleteGiftDialog, setOpenDeleteGiftDialog] = React.useState(false);
+
+  const handleClickOpenDeleteGift = (id: string) => {
+    setGiftID(id)
+    setOpenDeleteGiftDialog(true);
+  };
+
+  const handleCloseDeleteGift = () => {
+     setOpenDeleteGiftDialog(false);
+  };
+
+  const handleDeleteGift = async () => {
+    try {
+        await axios.post('/api/events/'+eventID+ '/gifts/' + giftID+ '/delete', {})
+        fetchGifts();
+        handleCloseBuyModal();
+    } catch (error: any) {
+        console.log(error);
+        Swal.fire({
+            icon: "error",
+            title: "Failed to update",
+            text: error.response.data
+        });
+    }
+
+    setOpenDeleteGiftDialog(false);
+  }
 
   const fetchParticipants = async () => {
     try {
@@ -254,10 +288,10 @@ const Secure: React.FC = () => {
                                   {!gift.status_frozen ? (
                                     <Box>
                                     <Tooltip title="Buy">
-                                    <Button onClick={() => handleOpenBuyModal(gift.id)}><CreditCardIcon /></Button>
+                                    <Button variant="outlined" onClick={() => handleOpenBuyModal(gift.id)}><CreditCardIcon /></Button>
                                     </Tooltip>
                                     <Modal
-                                      open={openBuyModel}
+                                      open={openBuyModal}
                                       onClose={handleCloseBuyModal}
                                       aria-labelledby="modal-modal-title"
                                       aria-describedby="modal-modal-description"
@@ -280,7 +314,30 @@ const Secure: React.FC = () => {
                                         </FormControl>
                                         <Button variant="contained" onClick = {handleGiftStatusUpdate}>Update</Button>
                                       </Box>
-                                    </Modal></Box>
+                                    </Modal>
+                                    <Button variant="outlined" onClick={() => handleClickOpenDeleteGift(gift.id)}><DeleteIcon/></Button>
+                                    <Dialog
+                                      open={openDeleteGiftDialog}
+                                      onClose={handleCloseDeleteGift}
+                                      aria-labelledby="alert-dialog-title"
+                                      aria-describedby="alert-dialog-description"
+                                    >
+                                      <DialogTitle id="alert-dialog-title">
+                                        {"Confirm gift deletion?"}
+                                      </DialogTitle>
+                                      <DialogContent>
+                                        <DialogContentText id="alert-dialog-description">
+                                          Are you sure you want to delete this gift? This cannot be undone.
+                                        </DialogContentText>
+                                      </DialogContent>
+                                      <DialogActions>
+                                        <Button onClick={handleCloseDeleteGift}>Cancel</Button>
+                                        <Button onClick={handleDeleteGift} autoFocus>
+                                          Delete
+                                        </Button>
+                                      </DialogActions>
+                                    </Dialog>
+                                  </Box>
                                   ): (<Box></Box>)}
                                 </TableCell>
                               </TableRow>
