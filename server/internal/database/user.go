@@ -52,16 +52,20 @@ func (s *service) FindOrCreateUser(ctx context.Context, user *User) (string, err
 }
 
 func (s *service) Login(ctx context.Context, userEmail string, password string) (string, error) {
-	var userID string
-	hash, err := HashPassword(password)
-	if err != nil {
-		return "", fmt.Errorf("failed to hash password: %w", err)
-	}
-	err = s.db.QueryRowContext(ctx, "SELECT id FROM users WHERE email = $1 AND password_hash = $2", userEmail, hash).Scan(&userID)
+	var (
+		userID           string
+		passwordHashInDB []byte
+	)
+	err := s.db.QueryRowContext(ctx, "SELECT id, password_hash FROM users WHERE email = $1 and password_hash != $2", userEmail, "").Scan(&userID, &passwordHashInDB)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return "", nil
 		}
+		return "", fmt.Errorf("failed to login user: %w", err)
+	}
+
+	err = bcrypt.CompareHashAndPassword(passwordHashInDB, []byte(password))
+	if err != nil {
 		return "", fmt.Errorf("failed to login user: %w", err)
 	}
 
