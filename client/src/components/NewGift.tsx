@@ -11,8 +11,15 @@ import Grid from '@mui/material/Grid';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Box from '@mui/material/Box';
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
+import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
+
+const validationSchema = Yup.object().shape({
+    name: Yup.string().required('Name is required'),
+    link1: Yup.string(),
+    link2: Yup.string(),
+    link3: Yup.string(),
+});
 
 interface User {
   id: string;
@@ -27,13 +34,9 @@ interface Participants {
 const Secure: React.FC = () => {
   const {eventID} = useParams()
   const navigate = useNavigate();
-  
-  const [name, setName] = useState("")
   const [toID, setToID] = useState("")
+
   const [participants, setParticipants] = useState<Participants | null>(null);
-  const [link1, setLink1] = useState("")
-  const [link2, setLink2] = useState("")
-  const [link3, setLink3] = useState("")
 
   const fetchUserDetails = async () => {
     try {
@@ -73,42 +76,32 @@ const Secure: React.FC = () => {
     }
   };
 
-  async function handleSubmit(e: any){
-        e.preventDefault();
-        if (!e.target.checkValidity()) {
-          Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "Form is invalid! Please fill everything..."
-            });
-          return
+  async function handleCreate(values: any){
+    console.log(values)
+    try {
+        var urls = []
+        if (values.link1 != "") {
+          urls.push(values.link1);
         }
-        try {
-            var requestBody: any = {};
-            requestBody.name = name;
-            requestBody.to_id = toID
-            var urls = []
-            if (link1 != "") {
-              urls.push(link1);
-            }
-            if (link2 != "") {
-              urls.push(link2);
-            }
-            if (link3 != "") {
-              urls.push(link3);
-            }
-            requestBody.urls = urls
-            await axios.post('/api/events/' + eventID + "/gifts/create", requestBody)
-            navigate('/events/' + eventID + "/gifts")
-        } catch (error: any) {
-            console.log(error);
-            Swal.fire({
-                icon: "error",
-                title: "Failed to create event",
-                text: error.response.data
-            });
+        if (values.link2 != "") {
+          urls.push(values.link2);
         }
+        if (values.link3 != "") {
+          urls.push(values.link3);
+        }
+        values.urls = urls
+        values.to_id = toID
+        await axios.post('/api/events/' + eventID + "/gifts/create", values)
+        navigate('/events/' + eventID + "/gifts")
+    } catch (error: any) {
+        console.log(error);
+        Swal.fire({
+            icon: "error",
+            title: "Failed to create event",
+            text: error.response.data
+        });
     }
+  }
 
   useEffect(() => {
     fetchUserDetails();
@@ -121,43 +114,81 @@ const Secure: React.FC = () => {
         <Container>
           <Card>
             <CardActions>
-              <Box component="form" onSubmit={handleSubmit} noValidate>
-                <Grid container spacing={1} >
-                  <Grid size={12}>
-                    <TextField onChange={e => {setName(e.target.value)}} id="name" label="Name" variant="standard" required />
-                  </Grid>
-                  <Grid size={12}>
-                    <FormControl required sx={{ m: 1, minWidth: 240 }}>
-                      <InputLabel variant="standard" htmlFor="uncontrolled-native">
-                      For
-                    </InputLabel>
-                      <Select
-                        defaultValue={participants.users[0].id}
-                        value={toID}
-                        label="For"
-                        onChange={e => {setToID(e.target.value)}}
-                        required
-                      >
-                        {participants.users.map((user) => (
-                          <MenuItem key={user.id} value={user.id}>{user.name}</MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  <Grid size={12}>
-                    <TextField onChange={e => {setLink1(e.target.value)}} id="link1" label="Link" variant="standard" />
-                  </Grid>
-                  <Grid size={12}>
-                    <TextField onChange={e => {setLink2(e.target.value)}} id="link2" label="Link" variant="standard" />
-                  </Grid>
-                  <Grid size={12}>
-                    <TextField onChange={e => {setLink3(e.target.value)}} id="link3" label="Link" variant="standard" />
-                  </Grid>
-                  <Grid size={12}>
-                    <Button variant="contained" type="submit">Create</Button>
-                  </Grid>
+              <Grid container spacing={1} >
+                <Grid size={12}>
+                  <Formik
+                      initialValues={{name: '', link1: '', link2: '', link3: ''}}
+                      validationSchema={validationSchema}
+                      onSubmit={handleCreate}
+                  >
+                      {({
+                            handleSubmit,
+                            touched,
+                            errors,
+                            handleChange,
+                            handleBlur
+                        }) => (
+                          <Form onSubmit={handleSubmit}>
+                              <TextField
+                                  label="Name"
+                                  variant="outlined"
+                                  name="name"
+                                  fullWidth
+                                  required
+                                  onChange={handleChange}
+                                  onBlur={handleBlur}
+                                  error={Boolean(touched.name && errors.name)}
+                                  helperText={touched.name && errors.name}
+                                  sx={{mb: 2}}
+                              />
+                              <Select
+                                defaultValue={participants.users[0].id}
+                                value={toID}
+                                fullWidth
+                                label="For"
+                                onChange={e => {setToID(e.target.value)}}
+                                required
+                                sx={{mb: 2}}
+                              >
+                                {participants.users.map((user) => (
+                                  <MenuItem key={user.id} value={user.id}>{user.name}</MenuItem>
+                                ))}
+                              </Select>
+                              <TextField
+                                  label="Link"
+                                  variant="outlined"
+                                  name="link1"
+                                  fullWidth
+                                  onChange={handleChange}
+                                  onBlur={handleBlur}
+                                  sx={{mb: 2}}
+                              />
+                              <TextField
+                                  label="Link"
+                                  variant="outlined"
+                                  name="link2"
+                                  fullWidth
+                                  onChange={handleChange}
+                                  onBlur={handleBlur}
+                                  sx={{mb: 2}}
+                              />
+                              <TextField
+                                  label="Link"
+                                  variant="outlined"
+                                  name="link3"
+                                  fullWidth
+                                  onChange={handleChange}
+                                  onBlur={handleBlur}
+                                  sx={{mb: 2}}
+                              />
+                              <Button type="submit" variant="contained" color="primary" fullWidth>
+                                  Create
+                              </Button>
+                          </Form>
+                      )}
+                    </Formik>
                 </Grid>
-              </Box>
+              </Grid>
             </CardActions>
           </Card>
         </Container>

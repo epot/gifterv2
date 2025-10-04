@@ -8,6 +8,7 @@ import (
 	"github.com/markbates/goth/gothic"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type Gifts struct {
@@ -95,7 +96,15 @@ func CreateGift(db database.Service) http.HandlerFunc {
 			return
 		}
 
-		err = db.CreateGift(ctx, userID, req.Name, eventID, req.ToID, req.URLs)
+		var urls []string
+		for _, url := range req.URLs {
+			trimmedURL := strings.TrimSpace(url)
+			if trimmedURL != "" {
+				urls = append(urls, trimmedURL)
+			}
+		}
+
+		err = db.CreateGift(ctx, userID, req.Name, eventID, req.ToID, urls)
 		if err != nil {
 			http.Error(w, "Error creating gift", http.StatusInternalServerError)
 			return

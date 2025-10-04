@@ -37,6 +37,15 @@ import ListItemText from '@mui/material/ListItemText';
 import IconButton from '@mui/material/IconButton';
 import Avatar from '@mui/material/Avatar';
 import TextField from '@mui/material/TextField';
+import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
+
+const addParticipantValidationSchema = Yup.object().shape({
+    participant_email: Yup.string()
+        .email('Invalid email')
+        .required('Email is required'),
+});
+
 
 interface Gift {
   id: string;
@@ -120,12 +129,9 @@ const Secure: React.FC = () => {
     }
   };
 
-  async function handleNewParticipant(e: any){
-        e.preventDefault()
+  async function handleNewParticipant(values: any){
         try {
-            var requestBody: any = {};
-            requestBody.participant_email = newParticipantEmail
-            await axios.post('/api/events/'+eventID+ '/participants/create', requestBody)
+            await axios.post('/api/events/'+eventID+ '/participants/create', values)
             fetchParticipants()
         } catch (error: any) {
             console.log(error);
@@ -235,11 +241,11 @@ const Secure: React.FC = () => {
                                 <TableCell align="right"><Chip label={new Date(gift.created_at).toDateString()}/></TableCell>
                                 <TableCell align="right">
                                   <List>
-                                    {gift.urls.map((url) => (
-                                      <ListItem>
+                                    {gift.urls != null ? gift.urls.map((url, idx) => (
+                                      <ListItem key={idx}>
                                         <Link href={url}  target="_blank" rel="noreferrer">Link</Link>
                                       </ListItem>
-                                    ))}
+                                    )):<></>}
                                   </List>
                                 </TableCell>
                                 <TableCell>
@@ -296,7 +302,7 @@ const Secure: React.FC = () => {
             <Box>
               <List>
                 {participants.users.map((user) => (
-                  <ListItemButton>
+                  <ListItemButton key={user.email}>
                     <ListItemIcon>
                       <IconButton sx={{ p: 0 }}>
                           <Avatar alt={user.email} src={user.picture} />
@@ -306,8 +312,36 @@ const Secure: React.FC = () => {
                   </ListItemButton>
                 ))}
               </List>
-              <TextField onChange={e => {setNewParticipantEmail(e.target.value)}} id="newParticipantEmail" label="Email:" variant="standard" required />
-              <Button variant="contained" onClick = {handleNewParticipant}>Add participant</Button>
+              <Formik
+                  initialValues={{participant_email: ''}}
+                  validationSchema={addParticipantValidationSchema}
+                  onSubmit={handleNewParticipant}
+              >
+                  {({
+                        handleSubmit,
+                        touched,
+                        errors,
+                        handleChange,
+                        handleBlur
+                    }) => (
+                      <Form onSubmit={handleSubmit}>
+                          <TextField
+                              label="Email"
+                              variant="outlined"
+                              name="participant_email"
+                              required
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              error={Boolean(touched.participant_email && errors.participant_email)}
+                              helperText={touched.participant_email && errors.participant_email}
+                              sx={{mr: 2}}
+                          />
+                          <Button type="submit" variant="contained" color="primary">
+                              Add participant
+                          </Button>
+                      </Form>
+                  )}
+                </Formik>
             </Box>
           ): (
             <Card>

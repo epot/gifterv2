@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Card from '@mui/material/Card';
 import Container from '@mui/material/Container';
@@ -17,7 +17,6 @@ import * as Yup from 'yup';
 
 const validationSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
-   // date: Yup.date().required('Date is required'),
 });
 
 const Secure: React.FC = () => {
