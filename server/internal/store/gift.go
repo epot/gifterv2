@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -85,6 +86,29 @@ func (s *store) ListGifts(ctx context.Context, userID, eventID string) ([]Gift, 
 	return gifts, nil
 }
 
+func (s *store) HasGift(ctx context.Context, eventID string, giftID string) (bool, error) {
+	row := s.db.QueryRowContext(
+		ctx,
+		`
+	SELECT 
+		id
+    FROM gifts 
+    WHERE event_id = $1 AND id = $2
+`,
+		eventID, giftID)
+
+	err := row.Err()
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, nil
+		}
+		return false, fmt.Errorf("failed to check gift existence: %w", err)
+	}
+
+	return true, nil
+}
+
 func (s *store) CreateGift(
 	ctx context.Context,
 	userID string,
@@ -107,7 +131,7 @@ func (s *store) CreateGift(
 		return fmt.Errorf("failed to marshal gift content: %w", err)
 	}
 
-	_, err = s.db.ExecContext(ctx, "INSERT INTO gifts (creator_id, event_id, created_at, content) VALUES ($1, $2, $3, $4)", userID, eventID, time.Now(), contentMarshalled)
+	_, err = s.db.ExecContext(ctx, "INSERT INTO gifts (creator_id, event_id, created_at, content) VALUES ($1, $2, $3, $4)", userID, eventID, time.Now().UTC(), contentMarshalled)
 	if err != nil {
 		return fmt.Errorf("failed to create gift: %w", err)
 	}

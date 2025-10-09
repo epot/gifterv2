@@ -40,8 +40,13 @@ type Store interface {
 
 	// gift stuff
 	CreateGift(ctx context.Context, userID string, name string, eventID string, toUserID string, urls []string, secret bool) error
+	HasGift(ctx context.Context, eventID string, giftID string) (bool, error)
 	ListGifts(ctx context.Context, userID, eventID string) ([]Gift, error)
 	UpdateGift(ctx context.Context, userID string, giftID string, eventID string, status GiftStatus) error
+
+	// comments stuff
+	CreateComment(ctx context.Context, userID string, giftID string, message string) error
+	ListComments(ctx context.Context, giftID string) ([]Comment, error)
 }
 
 type store struct {

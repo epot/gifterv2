@@ -25,11 +25,22 @@ CREATE TABLE participants(
 );
 
 CREATE TABLE gifts (
-  id serial PRIMARY KEY,
-  creator_id serial not null,
-  event_id serial not null,
-  created_at timestamp not null,
-  content text not null,
-  foreign key (creator_id) references users(id) on delete cascade,
-  foreign key (event_id) references events(id) on delete cascade
+   id serial PRIMARY KEY,
+   creator_id serial not null,
+   event_id serial not null,
+   created_at timestamp not null,
+   content text not null,
+   foreign key (creator_id) references users(id) on delete cascade,
+   foreign key (event_id) references events(id) on delete cascade
+);
+
+CREATE TABLE comments (
+   id serial PRIMARY KEY,
+   author_id serial not null,
+   gift_id serial not null,
+   created_at timestamp not null,
+   modified_at timestamp,
+   message text not null,
+   foreign key (author_id) references users(id) on delete cascade,
+   foreign key (gift_id) references gifts(id) on delete cascade
 );

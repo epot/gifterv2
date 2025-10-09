@@ -47,6 +47,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import HttpsIcon from '@mui/icons-material/Https';
+import CommentIcon from '@mui/icons-material/Comment';
 
 const addParticipantValidationSchema = Yup.object().shape({
     participant_email: Yup.string()
@@ -54,6 +55,10 @@ const addParticipantValidationSchema = Yup.object().shape({
         .required('Email is required'),
 });
 
+const addCommentValidationSchema = Yup.object().shape({
+    message: Yup.string()
+        .required('Message is required'),
+});
 
 interface Gift {
   id: string;
@@ -82,6 +87,17 @@ interface Participants {
   users: User[];
 }
 
+interface Comment {
+  id: string;
+  message: string;
+  since: string;
+  author: User;
+}
+
+interface Comments {
+  comments: Comment[];
+}
+
 const style = {
   position: 'absolute',
   top: '50%',
@@ -107,6 +123,7 @@ const Secure: React.FC = () => {
   const [giftID, setGiftID] = useState("")
   const [giftStatus, setGiftStatus] = useState(0)
   const [participants, setParticipants] = useState<Participants | null>(null);
+  const [comments, setComments] = useState<Comments | null>(null);
 
   const [openBuyModal, setOpenBuyModal] = React.useState(false);
   const handleOpenBuyModal = (id: string) => {
@@ -143,6 +160,14 @@ const Secure: React.FC = () => {
     setOpenDeleteGiftDialog(false);
   }
 
+  const [openCommentsModal, setOpenCommentsModal] = React.useState(false);
+  const handleOpenCommentsModal = (id: string) => {
+    setGiftID(id);
+    fetchComments(id);
+    setOpenCommentsModal(true);
+  }
+  const handleCloseCommentsModal = () => setOpenCommentsModal(false);
+
   const fetchParticipants = async () => {
     try {
       const res = await fetch("/api/events/"+eventID+"/participants", {
@@ -165,6 +190,27 @@ const Secure: React.FC = () => {
     }
   };
 
+    const fetchComments = async (id: string) => {
+    try {
+      const res = await fetch("/api/events/"+eventID+"/gifts/" + id + "/comments" , {
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch comments");
+      }
+
+      const commentsData = await res.json();
+      if (commentsData.comments == null) {
+        commentsData.comments = []
+      }
+      setComments(commentsData);
+      
+    } catch (err) {
+      console.error("Error fetching comments:", err);
+    }
+  };
+
   async function handleNewParticipant(values: any){
         try {
             await axios.post('/api/events/'+eventID+ '/participants/create', values)
@@ -174,6 +220,20 @@ const Secure: React.FC = () => {
             Swal.fire({
                 icon: "error",
                 title: "Failed to add participant",
+                text: error.response.data
+            });
+        }
+  }
+
+  async function handleAddComment(values: any){
+        try {
+            await axios.post('/api/events/'+eventID+ '/gifts/' + giftID + '/comments/create', values)
+            handleCloseCommentsModal();
+        } catch (error: any) {
+            console.log(error);
+            Swal.fire({
+                icon: "error",
+                title: "Failed to add comment",
                 text: error.response.data
             });
         }
@@ -321,6 +381,66 @@ const Secure: React.FC = () => {
                                         </FormControl>
                                         <Button variant="contained" onClick = {handleGiftStatusUpdate}>Update</Button>
                                       </Box>
+                                    </Modal>
+                                    <Tooltip title="Comment">
+                                    <Button variant="outlined" onClick={() => handleOpenCommentsModal(gift.id)}><CommentIcon /></Button>
+                                    </Tooltip>
+                                    <Modal
+                                      open={openCommentsModal}
+                                      onClose={handleCloseCommentsModal}
+                                      aria-labelledby="modal-modal-title"
+                                      aria-describedby="modal-modal-description"
+                                    >
+                                      {comments ? ( 
+                                        <Box sx={style}>
+                                          <List style={{maxHeight: '250px', overflow:'auto'}}>
+                                            {comments.comments.map((comment) => (
+                                              <ListItemButton key={comment.id}>
+                                                <ListItemIcon>
+                                                  <IconButton sx={{ p: 0 }}>
+                                                      <Avatar alt={comment.author.email} src={comment.author.picture} />
+                                                  </IconButton>
+                                                </ListItemIcon>
+                                                <ListItemText primary={comment.message} secondary={comment.since + ' ago'} />
+                                              </ListItemButton>
+                                            ))}
+                                          </List>
+                                          <Formik
+                                                initialValues={{message: ''}}
+                                                validationSchema={addCommentValidationSchema}
+                                                onSubmit={handleAddComment}
+                                            >
+                                                {({
+                                                      handleSubmit,
+                                                      touched,
+                                                      errors,
+                                                      handleChange,
+                                                      handleBlur
+                                                  }) => (
+                                                    <Form onSubmit={handleSubmit}>
+                                                        <TextField
+                                                            label="Comment"
+                                                            variant="outlined"
+                                                            name="message"
+                                                            required
+                                                            onChange={handleChange}
+                                                            onBlur={handleBlur}
+                                                            error={Boolean(touched.message && errors.message)}
+                                                            helperText={touched.message && errors.message}
+                                                            sx={{mr: 2}}
+                                                        />
+                                                        <Button type="submit" variant="contained" color="primary">
+                                                            Add
+                                                        </Button>
+                                                    </Form>
+                                                )}
+                                            </Formik>
+                                        </Box>
+                                      ) : (
+                                        <Card>
+                                          Loading...
+                                        </Card>
+                                      )}
                                     </Modal>
                                     <Button variant="outlined" onClick={() => handleClickOpenDeleteGift(gift.id)}><DeleteIcon/></Button>
                                     <Dialog
