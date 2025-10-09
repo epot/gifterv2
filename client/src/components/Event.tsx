@@ -382,9 +382,38 @@ const Secure: React.FC = () => {
                                         <Button variant="contained" onClick = {handleGiftStatusUpdate}>Update</Button>
                                       </Box>
                                     </Modal>
+                                    <Button variant="outlined" onClick={() => handleClickOpenDeleteGift(gift.id)}><DeleteIcon/></Button>
+                                    <Dialog
+                                      open={openDeleteGiftDialog}
+                                      onClose={handleCloseDeleteGift}
+                                      aria-labelledby="alert-dialog-title"
+                                      aria-describedby="alert-dialog-description"
+                                    >
+                                      <DialogTitle id="alert-dialog-title">
+                                        {"Confirm gift deletion?"}
+                                      </DialogTitle>
+                                      <DialogContent>
+                                        <DialogContentText id="alert-dialog-description">
+                                          Are you sure you want to delete this gift? This cannot be undone.
+                                        </DialogContentText>
+                                      </DialogContent>
+                                      <DialogActions>
+                                        <Button onClick={handleCloseDeleteGift}>Cancel</Button>
+                                        <Button onClick={handleDeleteGift} autoFocus>
+                                          Delete
+                                        </Button>
+                                      </DialogActions>
+                                    </Dialog>
                                     <Tooltip title="Comment">
-                                    <Button variant="outlined" onClick={() => handleOpenCommentsModal(gift.id)}><CommentIcon /></Button>
+                                      <Button variant="outlined" onClick={() => handleOpenCommentsModal(gift.id)}><CommentIcon /></Button>
                                     </Tooltip>
+                                  </Box>
+                                  ): (
+                                  <Box>
+                                    <Tooltip title="Comment">
+                                      <Button variant="outlined" onClick={() => handleOpenCommentsModal(gift.id)}><CommentIcon /></Button>
+                                    </Tooltip>
+                                  </Box>)}
                                     <Modal
                                       open={openCommentsModal}
                                       onClose={handleCloseCommentsModal}
@@ -442,30 +471,6 @@ const Secure: React.FC = () => {
                                         </Card>
                                       )}
                                     </Modal>
-                                    <Button variant="outlined" onClick={() => handleClickOpenDeleteGift(gift.id)}><DeleteIcon/></Button>
-                                    <Dialog
-                                      open={openDeleteGiftDialog}
-                                      onClose={handleCloseDeleteGift}
-                                      aria-labelledby="alert-dialog-title"
-                                      aria-describedby="alert-dialog-description"
-                                    >
-                                      <DialogTitle id="alert-dialog-title">
-                                        {"Confirm gift deletion?"}
-                                      </DialogTitle>
-                                      <DialogContent>
-                                        <DialogContentText id="alert-dialog-description">
-                                          Are you sure you want to delete this gift? This cannot be undone.
-                                        </DialogContentText>
-                                      </DialogContent>
-                                      <DialogActions>
-                                        <Button onClick={handleCloseDeleteGift}>Cancel</Button>
-                                        <Button onClick={handleDeleteGift} autoFocus>
-                                          Delete
-                                        </Button>
-                                      </DialogActions>
-                                    </Dialog>
-                                  </Box>
-                                  ): (<Box></Box>)}
                                 </TableCell>
                               </TableRow>
                         ))}
