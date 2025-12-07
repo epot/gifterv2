@@ -44,4 +44,9 @@ As I said, I didn't want to go for Heroku this time. Their pricing model is kind
 - `server/api.yaml` that defines the backend deployment configuration (this file is not committed as it contains some secrets, but there is a template file `server/api.yaml.example)
 - `dispatch.yaml` to explains how requests are routed to the single page application or the backend depending on the route
 
+In order to push a frontend update :
+
+- `npm run build` from the `client` folder
+- `gcloud app deploy` from the root folder
+
 The last piece required to have something working was the database. When I started to click around in Google UI I realized that it was probably not what I wanted: I would get a dedicated fat machine, which is kind of stupid for my usecase (no one could be using the website for weeks) and would probably end up being super expensive - which was not really clear when I was trying to create an instance. I gave Neon a try, as I heard from them at work. It was a *great* experience. In a few clicks I signed up to their product, and got a serverless database I could connect to. They even provide a lot of observability dashboards out of the box, you don't even need to have extra monitoring to start playing with it. With this and the google console logs explorer I was able to troubleshoot the last deployment problems and got something that worked.
