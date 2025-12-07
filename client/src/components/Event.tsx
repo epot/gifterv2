@@ -382,7 +382,11 @@ const Secure: React.FC = () => {
                                         <Button variant="contained" onClick = {handleGiftStatusUpdate}>Update</Button>
                                       </Box>
                                     </Modal>
-                                    <Button variant="outlined" onClick={() => handleClickOpenDeleteGift(gift.id)}><DeleteIcon/></Button>
+                                    </Box>
+                                    ): (<Box/>)}
+                                    <Tooltip title="Delete">
+                                     <Button variant="outlined" onClick={() => handleClickOpenDeleteGift(gift.id)}><DeleteIcon/></Button>
+                                    </Tooltip>
                                     <Dialog
                                       open={openDeleteGiftDialog}
                                       onClose={handleCloseDeleteGift}
@@ -404,16 +408,11 @@ const Secure: React.FC = () => {
                                         </Button>
                                       </DialogActions>
                                     </Dialog>
-                                    <Tooltip title="Comment">
-                                      <Button variant="outlined" onClick={() => handleOpenCommentsModal(gift.id)}><CommentIcon /></Button>
-                                    </Tooltip>
-                                  </Box>
-                                  ): (
                                   <Box>
                                     <Tooltip title="Comment">
                                       <Button variant="outlined" onClick={() => handleOpenCommentsModal(gift.id)}><CommentIcon /></Button>
                                     </Tooltip>
-                                  </Box>)}
+                                  </Box>
                                     <Modal
                                       open={openCommentsModal}
                                       onClose={handleCloseCommentsModal}
