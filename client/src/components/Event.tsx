@@ -278,6 +278,10 @@ const Secure: React.FC = () => {
     }
   };
 
+  const truncate = (str: string, max: number, len: number) => {
+    return str.length > max ? str.substring(0, len) + "..." : str;
+}
+
   useEffect(() => {
     fetchGifts();
     fetchParticipants();
@@ -324,9 +328,8 @@ const Secure: React.FC = () => {
                                   {gift.secret ? 
                                   <HttpsIcon/> : <></>}
                                   {gift.name == "" ?  <></> : 
-                                    <Tooltip title={"idea from " + gift.creator_name}>
-                                      
-                                        <Chip label={gift.name} />
+                                    <Tooltip title={gift.name + " (idea from " + gift.creator_name + ")"}>
+                                        <Chip label={truncate(gift.name, 20, 18)} />
                                     </Tooltip>
                                   }
                                 </TableCell>
