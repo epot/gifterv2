@@ -281,7 +281,7 @@ func StoreGiftToGift(ctx context.Context, s store.Store, userID string, gift sto
 			return g, fmt.Errorf("failed to get from name: %w", err)
 		}
 		g.FromName = fromName
-		g.StatusFrozen = *gift.Content.FromID != userID
+		g.StatusFrozen = *gift.Content.FromID != userID && (gift.Content.Status == store.AboutToBeBoughtGiftStatus || gift.Content.Status == store.BoughtGiftStatus)
 	}
 	g.URLs = gift.Content.URLs
 	g.Name = gift.Content.Name

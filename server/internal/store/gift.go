@@ -158,10 +158,14 @@ func (s *store) UpdateGift(ctx context.Context, userID string, giftID string, ev
 		return fmt.Errorf("failed to unmarshal gift content: %w", err)
 	}
 
-	if giftContent.FromID != nil && *giftContent.FromID != userID {
+	if (giftContent.Status == AboutToBeBoughtGiftStatus || giftContent.Status == BoughtGiftStatus) && giftContent.FromID != nil && *giftContent.FromID != userID {
 		return errors.New("gift already has a buyer")
 	}
-	giftContent.FromID = &userID
+	if giftContent.Status == AboutToBeBoughtGiftStatus || giftContent.Status == BoughtGiftStatus {
+		giftContent.FromID = &userID
+	} else {
+		giftContent.FromID = nil
+	}
 	giftContent.Status = status
 
 	contentMarshalled, err = json.Marshal(giftContent)
