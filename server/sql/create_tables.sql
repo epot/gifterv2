@@ -44,3 +44,9 @@ CREATE TABLE comments (
    foreign key (author_id) references users(id) on delete cascade,
    foreign key (gift_id) references gifts(id) on delete cascade
 );
+
+CREATE TABLE password_reset_nonces (
+   user_id serial PRIMARY KEY REFERENCES users(id) NOT NULL,
+   nonce varchar(120) NOT NULL,
+   expires_at timestamp NOT NULL
+);
