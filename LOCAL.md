@@ -25,12 +25,12 @@ OAuth 2.0 is a protocol that allows apps to securely delegate authentication to 
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/martishin/react-golang-user-login-oauth
-   cd react-golang-user-login-oauth
+   git clone https://github.com/epot/gifterv2
+   cd gifterv2
    ```
 
 2. **Set Up Environment Variables**:
-   Copy the .env.example file to .env in the root of the project and update the values as needed:
+   Create a new server/.env in the root of the project and update the values as needed:
    ```env
    PORT=8100
    DB_HOST=localhost
@@ -49,6 +49,7 @@ OAuth 2.0 is a protocol that allows apps to securely delegate authentication to 
 
 3. **Start the Database**:
    ```bash
+   cd server
    docker compose up db pgadmin -d
    ```
 
@@ -61,7 +62,7 @@ OAuth 2.0 is a protocol that allows apps to securely delegate authentication to 
 
    The backend will be running at [http://localhost:8100](http://localhost:8100).
 
-5. **Start the Frontend**:
+5. **Start the Frontend** (new shell):
    Navigate to the `client` directory:
    ```bash
    cd client
@@ -71,6 +72,6 @@ OAuth 2.0 is a protocol that allows apps to securely delegate authentication to 
 
    The frontend will be available at [http://localhost:5173](http://localhost:5173).
 
-6. **Veiw table in pgAdmin**:
+6. **View table in pgAdmin**:
 
    The portal will be available at [http://localhost:5050](http://localhost:5050).
