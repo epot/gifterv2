@@ -30,6 +30,7 @@ type Store interface {
 	GetUserByID(ctx context.Context, userID string) (*User, error)
 	GetUserByEmailWithPassword(ctx context.Context, userEmail string) (*User, error)
 	UserIDToName(ctx context.Context, userID string, userIDToName map[string]string) (string, error)
+	SetPassword(ctx context.Context, userID string, password string) error
 
 	// event stuff
 	ListEvents(ctx context.Context, userID string) ([]Event, error)

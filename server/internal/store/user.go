@@ -147,3 +147,17 @@ func (s *store) UserIDToName(ctx context.Context, userID string, userIDToName ma
 	userIDToName[userID] = name
 	return name, nil
 }
+
+func (s *store) SetPassword(ctx context.Context, userID string, password string) error {
+	hash, err := HashPassword(password)
+	if err != nil {
+		return fmt.Errorf("failed to hash password: %w", err)
+	}
+	_, err = s.db.ExecContext(ctx, "UPDATE users SET password_hash = $1 where id = $2", hash, userID)
+
+	if err != nil {
+		return fmt.Errorf("failed to updated password: %w", err)
+	}
+
+	return nil
+}

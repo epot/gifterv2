@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import axios from "axios"
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
@@ -13,22 +13,18 @@ import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 
 const validationSchema = Yup.object().shape({
-    email: Yup.string()
-        .email('Invalid email')
-        .required('Email is required'),
+  password: Yup.string().required('Password is required'),
 });
 
 const ResetPassword: React.FC = () => {
   const navigate = useNavigate();
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
   async function handleResetPassword(values: any){
         try {
+            values["nonce"] = searchParams.get("nonce")
             await axios.post('/auth/reset-password', values)
-            Swal.fire({
-                icon: "info",
-                title: "Email sent",
-                text: "If there is an email account associated to this account, an email has been sent. Check your inbox and follow the intructions."
-            });
             navigate('/')
         } catch (error: any) {
             console.log(error);
@@ -77,21 +73,22 @@ const ResetPassword: React.FC = () => {
                     handleChange,
                     handleBlur
                 }) => (
-                  <Form onSubmit={handleSubmit}>
+                <Form onSubmit={handleSubmit}>
                       <TextField
-                          label="Email"
+                          label="New password"
                           variant="outlined"
-                          name="email"
+                          name="password"
+                          type="password"
                           fullWidth
                           required
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          error={Boolean(touched.email && errors.email)}
-                          helperText={touched.email && errors.email}
+                          error={Boolean(touched.password && errors.password)}
+                          helperText={touched.password && errors.password}
                           sx={{mb: 2}}
                       />
                       <Button type="submit" variant="contained" color="primary" fullWidth>
-                          Send email
+                          Reset password
                       </Button>
                   </Form>
               )}
