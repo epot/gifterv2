@@ -28,6 +28,7 @@ type Store interface {
 	Signup(ctx context.Context, userName string, userEmail string, password string) (string, error)
 	Login(ctx context.Context, userEmail string, password string) (string, error)
 	GetUserByID(ctx context.Context, userID string) (*User, error)
+	GetUserByEmailWithPassword(ctx context.Context, userEmail string) (*User, error)
 	UserIDToName(ctx context.Context, userID string, userIDToName map[string]string) (string, error)
 
 	// event stuff

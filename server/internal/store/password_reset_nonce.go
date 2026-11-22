@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	resetPasswordOnceValidity = time.Hour
+	resetPasswordOnceValidity = 15 * time.Minute
 )
 
 type ResetPasswordNonce struct {

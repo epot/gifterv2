@@ -152,6 +152,7 @@ const Login: React.FC = () => {
               </Grid>
               <Grid size={12}>
                 <p style={{marginTop:"2vh"}}>Don't have an account? <Link href={'/signup'}>Create an account</Link></p>
+                <p style={{marginTop:"2vh"}}>Forgot your password? <Link href={'/reset-password'}>Reset your password</Link></p>
               </Grid>
             </Grid>
           </Box>

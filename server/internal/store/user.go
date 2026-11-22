@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
 	"github.com/jackc/pgx/v5/pgconn"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -105,6 +106,28 @@ func (s *store) GetUserByID(ctx context.Context, userID string) (*User, error) {
 		user.Picture = picture.String
 	}
 	return &user, err
+}
+
+func (s *store) GetUserByEmailWithPassword(ctx context.Context, userEmail string) (*User, error) {
+	var (
+		user     User
+		password string
+		picture  sql.NullString
+	)
+	err := s.db.QueryRowContext(ctx, "SELECT id, name, email, picture, password_hash FROM users WHERE email = $1", userEmail).Scan(&user.ID, &user.Name, &user.Email, &picture, &password)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user by email: %w", err)
+	}
+	if password == "" {
+		return nil, nil
+	}
+	if picture.Valid {
+		user.Picture = picture.String
+	}
+	return &user, nil
 }
 
 func (s *store) UserIDToName(ctx context.Context, userID string, userIDToName map[string]string) (string, error) {

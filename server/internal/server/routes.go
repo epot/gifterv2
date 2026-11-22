@@ -33,6 +33,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Get("/auth", gothic.BeginAuthHandler)
 	r.Get("/auth/callback", handlers.GoogleCallbackHandler(s.db))
 	r.Get("/auth/logout", handlers.LogoutHandler)
+	r.Post("/auth/reset-password", handlers.ResetPasswordHandler(s.db, isProduction))
 
 	// API routes (protected)
 	r.With(middleware.AuthMiddleware).Get("/api/user", handlers.GetUserHandler(s.db))
