@@ -19,7 +19,7 @@ const validationSchema = Yup.object().shape({
 const ResetPassword: React.FC = () => {
   const navigate = useNavigate();
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   async function handleResetPassword(values: any){
         try {

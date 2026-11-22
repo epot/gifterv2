@@ -67,7 +67,7 @@ func (s *store) Login(ctx context.Context, userEmail string, password string) (s
 
 	err = bcrypt.CompareHashAndPassword(passwordHashInDB, []byte(password))
 	if err != nil {
-		return "", fmt.Errorf("failed to login user: %w", err)
+		return "", nil
 	}
 
 	return userID, nil
