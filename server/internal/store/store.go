@@ -48,10 +48,10 @@ type Store interface {
 	CreateComment(ctx context.Context, userID string, giftID string, message string) error
 	ListComments(ctx context.Context, giftID string) ([]Comment, error)
 
-	// reset password
+	// reset password store methods
 	RemoveExistingNonces(ctx context.Context, userID string) error
 	CreateNewNonce(ctx context.Context, userID string, nonce string) error
-	GetNonce(ctx context.Context, userID string) (ResetPasswordNonce, bool, error)
+	GetNonce(ctx context.Context, nonceStr string) (ResetPasswordNonce, bool, error)
 }
 
 type store struct {
