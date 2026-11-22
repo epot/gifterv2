@@ -4,6 +4,7 @@ automatic_scaling:
   max_instances: 1
 
 env_variables:
+  ENV: production
   GOOGLE_CLIENT_ID: xxxx
   GOOGLE_CLIENT_SECRET: xxx
   GOOGLE_CALLBACK_URL: https://coincoin-1033.appspot.com/auth/callback?provider=google
@@ -15,3 +16,5 @@ env_variables:
   DB_DATABASE: postgres
   DB_USERNAME: postgres
   DB_PASSWORD: postgres
+  SENDGRID_API_KEY: xxxxxxx
+  SENDGRID_SENDER_EMAIL: rene.coty@gmail.com
