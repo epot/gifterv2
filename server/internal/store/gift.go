@@ -161,7 +161,7 @@ func (s *store) UpdateGift(ctx context.Context, userID string, giftID string, ev
 	if (giftContent.Status == AboutToBeBoughtGiftStatus || giftContent.Status == BoughtGiftStatus) && giftContent.FromID != nil && *giftContent.FromID != userID {
 		return errors.New("gift already has a buyer")
 	}
-	if giftContent.Status == AboutToBeBoughtGiftStatus || giftContent.Status == BoughtGiftStatus {
+	if status == AboutToBeBoughtGiftStatus || status == BoughtGiftStatus {
 		giftContent.FromID = &userID
 	} else {
 		giftContent.FromID = nil
